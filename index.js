@@ -36,14 +36,14 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-  console.log(request.body);
   var direction = 'up';
-  var food = request.body.food;
+  var food = request.body.board.food;
   var prey = [];
   var player = request.body.you;
+  console.log(player);
   
-  console.log('Our head is at [%d,%d]', player.body.x, player.body.y);
-  request.body.snakes.forEach(snake => {
+  console.log('Our head is at [%d,%d]', player.body[0].x, player.body[0].y);
+  request.body.board.snakes.forEach(snake => {
     if(snake.id === player.id){
         return;
     }
