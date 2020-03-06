@@ -36,10 +36,50 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-
+  var direction = 'up';
+  var food = request.body.food;
+  var prey = [];
+  var self = request.body.you;
+  
+  request.body.snakes.forEach(snake => {
+    if(snake.id === self.id){
+        continue;
+    }
+    if(snake.body.length < self.body.length){
+        prey.push(snake);
+    }
+  });
+    
+  var target = food[0];
+  var target_dist = request.body.board.width * request.body.board.height;
+  var x_dist = 0;
+  var y_dist = 0;
+  
+  food.forEach(f => {
+    x_dist = Math.abs(f.x - self.body[0].x);
+    y_dist = Math.abs(f.y - self.body[0].y);
+    var new_dist = Math.round(Math.sqrt(Math.pow(x_dist,2) + Math.pow(y_dist,2)));
+    if(new_dist < target_dist){
+      target_dist = new_dist;
+      target = f;
+    }
+  });
+  
+  if(x_dist > y_dist){
+    direction = 'right';
+    if((target.x - self.body[0].x) < 0){
+      direction = 'left';
+    }
+  } else {
+    direction = 'down';
+    if((target.y - self.body[0].y) < 0){
+      direction = 'up';
+    }
+  }
+  
   // Response data
   const data = {
-    move: 'up', // one of: ['up','down','left','right']
+    move: direction, // one of: ['up','down','left','right']
   }
 
   return response.json(data)
