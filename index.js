@@ -36,6 +36,7 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
+  console.log(request);
   var direction = 'up';
   var food = request.body.food;
   var prey = [];
