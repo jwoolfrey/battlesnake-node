@@ -43,7 +43,7 @@ app.post('/move', (request, response) => {
   
   request.body.snakes.forEach(snake => {
     if(snake.id === self.id){
-        continue;
+        return;
     }
     if(snake.body.length < self.body.length){
         prey.push(snake);
