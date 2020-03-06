@@ -41,6 +41,7 @@ app.post('/move', (request, response) => {
   var prey = [];
   var self = request.body.you;
   
+  console.log('Our head is at [%s,%s]', self.body.x, self.body.y);
   request.body.snakes.forEach(snake => {
     if(snake.id === self.id){
         return;
@@ -64,6 +65,7 @@ app.post('/move', (request, response) => {
       target = f;
     }
   });
+  console.log('Food found at [%s,%s]', target.x, target.y);
   
   if(x_dist > y_dist){
     direction = 'right';
@@ -76,6 +78,7 @@ app.post('/move', (request, response) => {
       direction = 'up';
     }
   }
+  console.log('Moving in direction: %s', direction);
   
   // Response data
   const data = {
