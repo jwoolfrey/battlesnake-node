@@ -36,18 +36,18 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-  console.log(request);
+  console.log(request.body);
   var direction = 'up';
   var food = request.body.food;
   var prey = [];
-  var self = request.body.you;
+  var player = request.body.you;
   
-  console.log('Our head is at [%s,%s]', self.body.x, self.body.y);
+  console.log('Our head is at [%d,%d]', player.body.x, player.body.y);
   request.body.snakes.forEach(snake => {
-    if(snake.id === self.id){
+    if(snake.id === player.id){
         return;
     }
-    if(snake.body.length < self.body.length){
+    if(snake.body.length < player.body.length){
         prey.push(snake);
     }
   });
@@ -58,24 +58,24 @@ app.post('/move', (request, response) => {
   var y_dist = 0;
   
   food.forEach(f => {
-    x_dist = Math.abs(f.x - self.body[0].x);
-    y_dist = Math.abs(f.y - self.body[0].y);
+    x_dist = Math.abs(f.x - player.body[0].x);
+    y_dist = Math.abs(f.y - player.body[0].y);
     var new_dist = Math.round(Math.sqrt(Math.pow(x_dist,2) + Math.pow(y_dist,2)));
     if(new_dist < target_dist){
       target_dist = new_dist;
       target = f;
     }
   });
-  console.log('Food found at [%s,%s]', target.x, target.y);
+  console.log('Food found at [%d,%d]', target.x, target.y);
   
   if(x_dist > y_dist){
     direction = 'right';
-    if((target.x - self.body[0].x) < 0){
+    if((target.x - player.body[0].x) < 0){
       direction = 'left';
     }
   } else {
     direction = 'down';
-    if((target.y - self.body[0].y) < 0){
+    if((target.y - player.body[0].y) < 0){
       direction = 'up';
     }
   }
