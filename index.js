@@ -136,7 +136,7 @@ app.post('/move', (request, response) => {
     }
   });
 
-  console.log("#### $s : %d ####", request.body.game.id, request.body.turn);
+  console.log("#### %s:%d ####", request.body.game.id, request.body.turn);
   console.log(mood);
   if(player.health === 100){
     console.log("Health : 100 (I found food!)");
@@ -147,7 +147,7 @@ app.post('/move', (request, response) => {
   console.log("food :", foodList);
   console.log("prey :", preyList);
   //console.log("void :", voidList);
-  
+
   console.log("--- Movement ---");
   console.log("Prefered :", preferedDirections);
   console.log("Player :", player.body[0]);
