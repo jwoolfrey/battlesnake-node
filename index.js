@@ -146,8 +146,6 @@ app.post('/move', (request, response) => {
     target = findClosestTarget(player.body[0], foodList);
   } else if(mood.hunting) {
     target = findClosestTarget(player.body[0], preyList);
-  } else if(mood.hiding) {
-    target = 
   }
 
   preferredDirections = [];
