@@ -93,17 +93,17 @@ app.post('/move', (request, response) => {
     }
   });
 
-  console.log("### Summary Turn: %d ###", request.body.turn);
-  if(player.health === 100){
-    console.log("Current Health: 100 (I found food!)");
-  } else {
-    console.log("Current Health: %d", player.health);
-  }
+  console.log("#### $s:%d ####", request.game.id, request.body.turn);
   console.log(mood);
-  console.log("Avg Distance to Food: %d", avgFoodDistance);
+  if(player.health === 100){
+    console.log("Health : 100 (I found food!)");
+  } else {
+    console.log("Health : %d", player.health);
+  }
+  console.log("Threshold : %d", avgFoodDistance);
   console.log("food :", foodList);
   console.log("prey :", preyList);
-  console.log("void :", voidList);
+  //console.log("void :", voidList);
 
   preferedDirections = [];
   if((target.x - player.body[0].x) != 0){
@@ -122,31 +122,30 @@ app.post('/move', (request, response) => {
     }
   }
 
-  console.log("--- Prefered Directions ---");
+  console.log("--- Movement ---");
   console.log("Prefered :", preferedDirections);
   console.log("Player :", player.body[0]);
   console.log("Target :", target);
-  console.log("--- Testing Directions ---");
 
   Object.keys(directionMap).forEach( opt => {
     nextTile = {
       'x': player.body[0].x + directionMap[opt].x,
       'y': player.body[0].y + directionMap[opt].y
     };
+
     if(nextTile.x < 0 || nextTile.x > board.width - 1){
       return;
     }
     if(nextTile.y < 0 || nextTile.y > board.height - 1){
       return;
     }
-    console.log("--- Testing Collision ---");
-    collision = (voidList.findIndex( voidTile => nextTile.x == voidTile.x && nextTile.y == voidTile.y) >= 0);
-    console.log("Collision :", collision);
+    collision = (voidList.findIndex( voidTile => (
+      nextTile.x == voidTile.x && nextTile.y == voidTile.y
+    )) >= 0);
     if(collision){
-      console.log("> Cannot overlap");
       return;
     }
-    console.log("+ Valid move (%s):", opt, nextTile);
+
     if(preferedDirections.indexOf(opt) >= 0){
       nextMove.unshift(opt);
     } else {
@@ -155,7 +154,7 @@ app.post('/move', (request, response) => {
   });
 
   console.log("Moving: ", nextMove[0]);
-  console.log("###############");
+  console.log("########################");
   
   // Response data
   const data = {
