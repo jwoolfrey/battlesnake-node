@@ -57,56 +57,109 @@ app.post('/move', (request, response) => {
     'y': player.body[0].y - player.body[1].y
   };
 
-  board.snakes.forEach(snake => {
-    voidList = voidList.concat(snake.body.slice(1));
-    if(snake.id === player.id){
-      return;
+  function withinBoardBounds (source) {
+    if(source.x < 0 || source.x > board.width - 1) {
+      return false;
     }
-    if(snake.body.length < player.body.length){
+    if(source.y < 0 || source.y > board.height - 1) {
+      return false;
+    }
+    return true;
+  }
+
+  function sameCoordinates (coord_a, coord_b) {
+    if((coord_a.x - coord_b.x) != 0) {
+      return false;
+    }
+    if((coord_a.y - coord_b.y) != 0) {
+      return false;
+    }
+    return true;
+  }
+
+  function coordinatesInList (coordinates, list) {
+    if((list.findIndex( element => (
+      coordinates.x == element.x && coordinates.y == element.y
+    ))) < 0) {
+      return false;
+    }
+    return true;
+  }
+
+  function findNextTiles (source, step = 1, banned = null) {
+    tileList = [];
+    candidate = {'x': 0, 'y': 0};
+    Object.values(directionMap).forEach( direction => {
+      candidate.x = direction.x + source.x;
+      candidate.y = direction.y + source.y;
+      if(!withinBoardBounds(candidate)) {
+        return;
+      }
+      if(banned != null && sameCoordinates(candidate, banned)) {
+        return;
+      }
+      tileList.push(candidate);
+      if(step > 1) {
+        tileList.concat(findNextTiles(candidate, step - 1, source));
+      }
+    });
+    return tileList;
+  }
+
+  function findClosestTarget (source, list) {
+    shortestDistance = board.width * board.height;
+    destination = source;
+
+    list.forEach( candidate => {
+      newDistance = Math.round(Math.hypot(Math.abs(candidate.x - source.x), Math.abs(candidate.y - source.y)));
+      if(newDistance < shortestDistance){
+        //check for obstruction?
+        shortestDistance = newDistance;
+        destination = candidate;
+      }
+    });
+    return destination;
+  }
+
+  board.snakes.forEach( snake => {
+    voidList = voidList.concat(snake.body.slice(1, snake.length - 1));
+    if(snake.body.length < player.body.length) {
       preyList.push(snake.body[0]);
     } else {
       voidList.push(snake.body[0]);
     }
+    snakeFood = findNextTiles(snake.body[0]);
   });
   
+  // mood logic
   avgFoodDistance = ((board.width * board.height)/(foodList.length + preyList.length));
-  if(player.health <= avgFoodDistance){
+  if(player.health <= avgFoodDistance) {
     mood.hungry = true;
+  } else {
+    mood.hunting = true;
   }
 
   target = player.body[player.body.length - 1];
   if(mood.hungry && foodList.length > 0){
-    target = foodList[0];
-  }
-  
-  shortestFoodDistance = board.width * board.height;
-  targetDistanceX = 0;
-  targetDistanceY = 0;
-  
-  foodList.forEach( food => {
-    targetDistanceX = Math.abs(food.x - player.body[0].x);
-    targetDistanceY = Math.abs(food.y - player.body[0].y);
-    newFoodDistance = Math.round(Math.hypot(targetDistanceX, targetDistanceY));
-    if(newFoodDistance < shortestFoodDistance){
-      shortestFoodDistance = newFoodDistance;
-      target = food;
-    }
-  });
+    target = findClosestTarget(player.body[0], foodList);
+  } else if(mood.hunting && preyList.length > 0){
+    target = findClosestTarget(player.body[0], preyList);
+  } 
 
-  preferedDirections = [];
-  if((target.x - player.body[0].x) != 0){
-    if((target.x - player.body[0].x) < 0){
-      preferedDirections.push('left');
+  preferredDirections = [];
+  if((target.x - player.body[0].x) != 0) {
+    if((target.x - player.body[0].x) < 0) {
+      preferredDirections.push('left');
     } else {
-      preferedDirections.push('right');
+      preferredDirections.push('right');
     }
   }
 
-  if((target.y - player.body[0].y) != 0){
-    if((target.y - player.body[0].y) < 0){
-      preferedDirections.push('up');
+  if((target.y - player.body[0].y) != 0) {
+    if((target.y - player.body[0].y) < 0) {
+      preferredDirections.push('up');
     } else {
-      preferedDirections.push('down');
+      preferredDirections.push('down');
     }
   }
 
@@ -116,20 +169,17 @@ app.post('/move', (request, response) => {
       'y': player.body[0].y + directionMap[opt].y
     };
 
-    if(nextTile.x < 0 || nextTile.x > board.width - 1){
-      return;
-    }
-    if(nextTile.y < 0 || nextTile.y > board.height - 1){
-      return;
-    }
-    collision = (voidList.findIndex( voidTile => (
-      nextTile.x == voidTile.x && nextTile.y == voidTile.y
-    )) >= 0);
-    if(collision){
+    if(!withinBoardBounds(nextTile)) {
       return;
     }
 
-    if(preferedDirections.indexOf(opt) >= 0){
+    if(coordinatesInList(nextTile, voidList)) {
+      return;
+    }
+
+    //avoid small volumes
+
+    if(preferredDirections.indexOf(opt) >= 0) {
       nextMove.unshift(opt);
     } else {
       nextMove.push(opt);
@@ -138,7 +188,7 @@ app.post('/move', (request, response) => {
 
   console.log("#### %s:%d ####", request.body.game.id, request.body.turn);
   console.log(mood);
-  if(player.health === 100){
+  if(player.health === 100) {
     console.log("Health : 100 (I found food!)");
   } else {
     console.log("Health : %d", player.health);
@@ -149,7 +199,7 @@ app.post('/move', (request, response) => {
   //console.log("void :", voidList);
 
   console.log("--- Movement ---");
-  console.log("Prefered :", preferedDirections);
+  console.log("Preferred :", preferredDirections);
   console.log("Player :", player.body[0]);
   console.log("Target :", target);
   console.log("Moving: ", nextMove[0]);
