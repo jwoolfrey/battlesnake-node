@@ -102,15 +102,20 @@ app.post('/move', (request, response) => {
   console.log("###############");
 
   preferedDirections = [];
-  if((target.x - player.body[0].x) > 0){
-    preferedDirections.push('left');
-  } else {
-    preferedDirections.push('right');
+  if((target.x - player.body[0].x) != 0){
+    if((target.x - player.body[0].x) > 0){
+      preferedDirections.push('left');
+    } else {
+      preferedDirections.push('right');
+    }
   }
-  if((target.y - player.body[0].y) > 0){
-    preferedDirections.push('up');
-  } else {
-    preferedDirections.push('down');
+
+  if((target.y - player.body[0].y) != 0){
+    if((target.y - player.body[0].y) > 0){
+      preferedDirections.push('up');
+    } else {
+      preferedDirections.push('down');
+    }
   }
 
   console.log("--- Prefered Directions ---");
