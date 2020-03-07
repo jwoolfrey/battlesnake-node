@@ -56,13 +56,6 @@ app.post('/move', (request, response) => {
     'y': player.body[0].y - player.body[1].y
   };
 
-  console.log("### Summary ###");
-  if(player.health === 100){
-    console.log("Current Health: 100 (I found food!)");
-  } else {
-    console.log("Current Health: %d", player.health);
-  }
-
   board.snakes.forEach(snake => {
     if(snake.id === player.id){
       return;
@@ -75,6 +68,14 @@ app.post('/move', (request, response) => {
   avgFoodDistance = (board.width * board.height)/(foodList.length + preyList.length);
   if(avgFoodDistance <= player.health){
     mood.hungry = true;
+  }
+
+  console.log("### Summary ###");
+  console.log("Avg Distance to Food: %d", avgFoodDistance);
+  if(player.health === 100){
+    console.log("Current Health: 100 (I found food!)");
+  } else {
+    console.log("Current Health: %d", player.health);
   }
 
   target = player.body[player.body.length - 1];
@@ -108,10 +109,10 @@ app.post('/move', (request, response) => {
     preferedDirections.push('down');
   }
 
-  console.log("---Picking Directions---");
+  console.log("--- Prefered Directions ---");
   console.log(preferedDirections);
   console.log(player.body[0]);
-  console.log("---Iteration!---");
+  console.log("--- Testing Directions ---");
   console.log(Object.keys(directionMap));
 
   Object.keys(directionMap).forEach( opt => {
@@ -120,14 +121,17 @@ app.post('/move', (request, response) => {
       'y': player.body[0].y + directionMap[opt].y
     };
     console.log(nextTile);
+    console.log("--- Testing X Bounds ---");
     if(nextTile.x < 0 || nextTile.x > board.width - 1){
       console.log("> X out of bounds");
       return;
     }
+    console.log("--- Testing Y Bounds ---");
     if(nextTile.y < 0 || nextTile.y > board.height - 1){
       console.log("> Y out of bounds");
       return;
     }
+    console.log("--- Testing Self-Collision ---");
     if(player.body.IndexOf(nextTile)){
       console.log("> Cannot overlap");
       return;
