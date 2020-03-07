@@ -50,7 +50,20 @@ app.post('/move', (request, response) => {
 
   foodList = board.food;
   preyList = [];
-    
+  
+  playerVector = {
+    'x': player.body[0].x - player.body[1].x,
+    'y': player.body[0].y - player.body[1].y
+  };
+
+  console.log("### Summary ###");
+  console.log("last move: %s", directionMap.IndexOf(playerVector));
+  if(player.health === 100){
+    console.log("Current Health: 100 (I found food!)");
+  } else {
+    console.log("Current Health: %d", player.health);
+  }
+
   board.snakes.forEach(snake => {
     if(snake.id === player.id){
       return;
@@ -100,6 +113,8 @@ app.post('/move', (request, response) => {
   console.log(preferedDirections);
   console.log(player.body[0]);
   console.log("---Iteration!---");
+  console.log(directionMap.keys());
+
   directionMap.keys().forEach( opt => {
     nextTile = {
       'x': player.body[0].x + directionMap[opt].x,
