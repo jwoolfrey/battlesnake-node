@@ -103,7 +103,7 @@ app.post('/move', (request, response) => {
 
   preferedDirections = [];
   if((target.x - player.body[0].x) != 0){
-    if((target.x - player.body[0].x) > 0){
+    if((target.x - player.body[0].x) < 0){
       preferedDirections.push('left');
     } else {
       preferedDirections.push('right');
@@ -111,7 +111,7 @@ app.post('/move', (request, response) => {
   }
 
   if((target.y - player.body[0].y) != 0){
-    if((target.y - player.body[0].y) > 0){
+    if((target.y - player.body[0].y) < 0){
       preferedDirections.push('up');
     } else {
       preferedDirections.push('down');
