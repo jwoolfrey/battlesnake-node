@@ -140,7 +140,7 @@ app.post('/move', (request, response) => {
       return;
     }
     console.log("--- Testing Collision ---");
-    collision = (voidList.indexOf(nextTile) >= 0);
+    collision = (voidList.findIndex( voidTile => nextTile.x == voidTile.x && nextTile.y == voidTile.y) >= 0);
     console.log("Collision :", collision);
     if(collision){
       console.log("> Cannot overlap");
