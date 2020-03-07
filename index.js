@@ -37,10 +37,10 @@ app.post('/start', (request, response) => {
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
   directionMap = {
-    'up': {'x': 0, 'y': -1},
-    'right': {'x': 1, 'y': 0},
-    'down': {'x': 0, 'y': 1},
-    'left': {'x': -1, 'y': 0}
+    'up'   : {'x':  0, 'y': -1},
+    'right': {'x':  1, 'y':  0},
+    'down' : {'x':  0, 'y':  1},
+    'left' : {'x': -1, 'y':  0}
   };
   nextMove = 'up';
   mood = {'hungry': false, 'hunting': false, 'hiding': false};
@@ -102,8 +102,8 @@ app.post('/move', (request, response) => {
   console.log("---Iteration!---");
   directionOptions.forEach( opt => {
     nextTile = {
-      'x': player.body.x + directionMap[opt].x,
-      'y': player.body.y + directionMap[opt].y
+      'x': player.body[0].x + directionMap[opt].x,
+      'y': player.body[0].y + directionMap[opt].y
     };
     console.log(nextTile);
     if(nextTile.x < 0 || nextTile.x > board.width - 1){
