@@ -42,7 +42,7 @@ app.post('/move', (request, response) => {
     'down' : {'x':  0, 'y':  1},
     'left' : {'x': -1, 'y':  0}
   };
-  nextMove = 'up';
+  nextMove = ['up'];
   mood = {'hungry': false, 'hunting': false, 'hiding': false};
 
   player = request.body.you;
