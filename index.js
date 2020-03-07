@@ -122,7 +122,7 @@ app.post('/move', (request, response) => {
   }
 
   board.snakes.forEach( snake => {
-    voidList = voidList.concat(snake.body.slice(1, snake.length - 1));
+    voidList = voidList.concat(snake.body.slice(1, -1));
     if(snake.body.length < player.body.length) {
       preyList.push(snake.body[0]);
     } else {
@@ -135,14 +135,16 @@ app.post('/move', (request, response) => {
   avgFoodDistance = ((board.width * board.height)/(foodList.length + preyList.length));
   if(player.health <= avgFoodDistance) {
     mood.hungry = true;
-  } else {
+  } else if(preyList.length > 0) {
     mood.hunting = true;
+  } else {
+    mood.hiding = true;
   }
 
   target = player.body[player.body.length - 1];
-  if(mood.hungry && foodList.length > 0){
+  if(mood.hungry && foodList.length > 0) {
     target = findClosestTarget(player.body[0], foodList);
-  } else if(mood.hunting && preyList.length > 0){
+  } else if(mood.hunting) {
     target = findClosestTarget(player.body[0], preyList);
   } 
 
@@ -172,12 +174,9 @@ app.post('/move', (request, response) => {
     if(!withinBoardBounds(nextTile)) {
       return;
     }
-
     if(coordinatesInList(nextTile, voidList)) {
       return;
     }
-
-    //avoid small volumes
 
     if(preferredDirections.indexOf(opt) >= 0) {
       nextMove.unshift(opt);
@@ -196,7 +195,7 @@ app.post('/move', (request, response) => {
   console.log("Threshold : %d", avgFoodDistance);
   console.log("food :", foodList);
   console.log("prey :", preyList);
-  //console.log("void :", voidList);
+  console.log("void :", voidList);
 
   console.log("--- Movement ---");
   console.log("Preferred :", preferredDirections);
