@@ -93,7 +93,7 @@ app.post('/move', (request, response) => {
     }
   });
 
-  console.log("#### $s:%d ####", request.game.id, request.body.turn);
+  console.log("#### $s:%d ####", request.body.game.id, request.body.turn);
   console.log(mood);
   if(player.health === 100){
     console.log("Health : 100 (I found food!)");
