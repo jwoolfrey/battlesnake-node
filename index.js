@@ -65,7 +65,7 @@ app.post('/move', (request, response) => {
     }
   });
   
-  avgFoodDistance = (board.width * board.height)/(foodList.length + preyList.length);
+  avgFoodDistance = ((board.width * board.height)/(foodList.length + preyList.length));
   if(avgFoodDistance <= player.health){
     mood.hungry = true;
   }
@@ -132,12 +132,12 @@ app.post('/move', (request, response) => {
       return;
     }
     console.log("--- Testing Self-Collision ---");
-    if(player.body.IndexOf(nextTile)){
+    if(player.body.indexOf(nextTile)){
       console.log("> Cannot overlap");
       return;
     }
     console.log("+ Valid move: ", nextTile);
-    if(preferedDirections.IndexOf(opt)){
+    if(preferedDirections.indexOf(opt)){
       nextMove.unshift(opt);
     } else {
       nextMove.push(opt);
