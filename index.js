@@ -133,10 +133,12 @@ app.post('/move', (request, response) => {
   
   // mood logic
   avgFoodDistance = ((board.width * board.height)/(foodList.length + preyList.length));
-  if(player.health <= avgFoodDistance + 5) {
+  if(preyList.length < 1  || player.health <= avgFoodDistance + 5) {
     mood.hungry = true;
   } else if(preyList.length > 0) {
     mood.hunting = true;
+  } else {
+    mood.hiding = true;
   }
 
   target = player.body[player.body.length - 1];
@@ -144,7 +146,9 @@ app.post('/move', (request, response) => {
     target = findClosestTarget(player.body[0], foodList);
   } else if(mood.hunting) {
     target = findClosestTarget(player.body[0], preyList);
-  } 
+  } else if(mood.hiding) {
+    target = 
+  }
 
   preferredDirections = [];
   if((target.x - player.body[0].x) != 0) {
