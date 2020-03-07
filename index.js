@@ -50,6 +50,7 @@ app.post('/move', (request, response) => {
 
   foodList = board.food;
   preyList = [];
+  voidList = [];
   
   playerVector = {
     'x': player.body[0].x - player.body[1].x,
@@ -57,11 +58,14 @@ app.post('/move', (request, response) => {
   };
 
   board.snakes.forEach(snake => {
+    voidList.concat(snake.body.slice(1));
     if(snake.id === player.id){
       return;
     }
     if(snake.body.length < player.body.length){
-      preyList.push({'x': snake.body[0].x, 'y': snake.body[0].y});
+      preyList.push(snake.body[0]);
+    } else {
+      voidList.push(snake.body[0]);
     }
   });
   
@@ -141,8 +145,8 @@ app.post('/move', (request, response) => {
       console.log("> Y out of bounds");
       return;
     }
-    console.log("--- Testing Self-Collision ---");
-    if(player.body.indexOf(nextTile) >= 0){
+    console.log("--- Testing Collision ---");
+    if(voidList.indexOf(nextTile) >= 0){
       console.log("> Cannot overlap");
       return;
     }
