@@ -96,11 +96,16 @@ app.post('/move', (request, response) => {
     directionOptions.push('down');
   }
 
+  console.log("---Picking Directions---");
+  console.log(directionOptions);
+  console.log(player.body[0]);
+  console.log("---Iteration!---");
   directionOptions.forEach( opt => {
     nextTile = {
       'x': player.body.x + directionMap[opt].x,
       'y': player.body.y + directionMap[opt].y
     };
+    console.log(nextTile);
     if(nextTile.x < 0 || nextTile.x > board.width - 1){
       return;
     }
@@ -110,10 +115,11 @@ app.post('/move', (request, response) => {
     if(player.body.IndexOf(nextTile)){
       return;
     }
+    console.log("+ Valid move: ", nextTile);
     nextMove.unshift(opt);
   });
 
-  console.log('Moving in direction: %s', direction);
+  console.log("Moving: ", nextMove[0]);
   
   // Response data
   const data = {
