@@ -133,7 +133,7 @@ app.post('/move', (request, response) => {
   
   // mood logic
   avgFoodDistance = ((board.width * board.height)/(foodList.length + preyList.length));
-  if(player.health <= avgFoodDistance) {
+  if(player.health <= avgFoodDistance + 5) {
     mood.hungry = true;
   } else if(preyList.length > 0) {
     mood.hunting = true;
@@ -193,9 +193,9 @@ app.post('/move', (request, response) => {
     console.log("Health : %d", player.health);
   }
   console.log("Threshold : %d", avgFoodDistance);
-  console.log("food :", foodList);
-  console.log("prey :", preyList);
-  console.log("void :", voidList);
+  console.log("food :", foodList.length);
+  console.log("prey :", preyList.length);
+  console.log("void :", voidList.length);
 
   console.log("--- Movement ---");
   console.log("Preferred :", preferredDirections);
