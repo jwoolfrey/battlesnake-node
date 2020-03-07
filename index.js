@@ -58,7 +58,7 @@ app.post('/move', (request, response) => {
   };
 
   board.snakes.forEach(snake => {
-    voidList.concat(snake.body.slice(1));
+    voidList = voidList.concat(snake.body.slice(1));
     if(snake.id === player.id){
       return;
     }
