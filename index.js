@@ -101,10 +101,9 @@ app.post('/move', (request, response) => {
   }
   console.log(mood);
   console.log("Avg Distance to Food: %d", avgFoodDistance);
-  console.log("food: %s", foodList);
-  console.log("prey: %s", preyList);
-  console.log("void: %s", voidList);
-  console.log("###############");
+  console.log("food :", foodList);
+  console.log("prey :", preyList);
+  console.log("void :", voidList);
 
   preferedDirections = [];
   if((target.x - player.body[0].x) != 0){
@@ -124,26 +123,20 @@ app.post('/move', (request, response) => {
   }
 
   console.log("--- Prefered Directions ---");
-  console.log(preferedDirections);
-  console.log(player.body[0]);
-  console.log(target);
+  console.log("Prefered :", preferedDirections);
+  console.log("Player :", player.body[0]);
+  console.log("Target :", target);
   console.log("--- Testing Directions ---");
-  console.log(Object.keys(directionMap));
 
   Object.keys(directionMap).forEach( opt => {
     nextTile = {
       'x': player.body[0].x + directionMap[opt].x,
       'y': player.body[0].y + directionMap[opt].y
     };
-    console.log(nextTile);
-    console.log("--- Testing X Bounds ---");
     if(nextTile.x < 0 || nextTile.x > board.width - 1){
-      console.log("> X out of bounds");
       return;
     }
-    console.log("--- Testing Y Bounds ---");
     if(nextTile.y < 0 || nextTile.y > board.height - 1){
-      console.log("> Y out of bounds");
       return;
     }
     console.log("--- Testing Collision ---");
@@ -151,7 +144,7 @@ app.post('/move', (request, response) => {
       console.log("> Cannot overlap");
       return;
     }
-    console.log("+ Valid move: ", nextTile);
+    console.log("+ Valid move (%s):", opt, nextTile);
     if(preferedDirections.indexOf(opt) >= 0){
       nextMove.unshift(opt);
     } else {
@@ -160,6 +153,7 @@ app.post('/move', (request, response) => {
   });
 
   console.log("Moving: ", nextMove[0]);
+  console.log("###############");
   
   // Response data
   const data = {
