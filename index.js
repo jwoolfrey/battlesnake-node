@@ -70,14 +70,6 @@ app.post('/move', (request, response) => {
     mood.hungry = true;
   }
 
-  console.log("### Summary ###");
-  console.log("Avg Distance to Food: %d", avgFoodDistance);
-  if(player.health === 100){
-    console.log("Current Health: 100 (I found food!)");
-  } else {
-    console.log("Current Health: %d", player.health);
-  }
-
   target = player.body[player.body.length - 1];
   if(mood.hungry && foodList.length > 0){
     target = foodList[0];
@@ -96,7 +88,19 @@ app.post('/move', (request, response) => {
       target = food;
     }
   });
-  
+
+  console.log("### Summary ###");
+  if(player.health === 100){
+    console.log("Current Health: 100 (I found food!)");
+  } else {
+    console.log("Current Health: %d", player.health);
+  }
+  console.log(mood);
+  console.log("Avg Distance to Food: %d", avgFoodDistance);
+  console.log(foodList);
+  console.log(preyList);
+  console.log("###############");
+
   preferedDirections = [];
   if((target.x - player.body[0].x) > 0){
     preferedDirections.push('left');
