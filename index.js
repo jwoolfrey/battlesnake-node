@@ -93,18 +93,6 @@ app.post('/move', (request, response) => {
     }
   });
 
-  console.log("#### $s:%d ####", request.body.game.id, request.body.turn);
-  console.log(mood);
-  if(player.health === 100){
-    console.log("Health : 100 (I found food!)");
-  } else {
-    console.log("Health : %d", player.health);
-  }
-  console.log("Threshold : %d", avgFoodDistance);
-  console.log("food :", foodList);
-  console.log("prey :", preyList);
-  //console.log("void :", voidList);
-
   preferedDirections = [];
   if((target.x - player.body[0].x) != 0){
     if((target.x - player.body[0].x) < 0){
@@ -121,11 +109,6 @@ app.post('/move', (request, response) => {
       preferedDirections.push('down');
     }
   }
-
-  console.log("--- Movement ---");
-  console.log("Prefered :", preferedDirections);
-  console.log("Player :", player.body[0]);
-  console.log("Target :", target);
 
   Object.keys(directionMap).forEach( opt => {
     nextTile = {
@@ -153,6 +136,22 @@ app.post('/move', (request, response) => {
     }
   });
 
+  console.log("#### $s : %d ####", request.body.game.id, request.body.turn);
+  console.log(mood);
+  if(player.health === 100){
+    console.log("Health : 100 (I found food!)");
+  } else {
+    console.log("Health : %d", player.health);
+  }
+  console.log("Threshold : %d", avgFoodDistance);
+  console.log("food :", foodList);
+  console.log("prey :", preyList);
+  //console.log("void :", voidList);
+  
+  console.log("--- Movement ---");
+  console.log("Prefered :", preferedDirections);
+  console.log("Player :", player.body[0]);
+  console.log("Target :", target);
   console.log("Moving: ", nextMove[0]);
   console.log("########################");
   
