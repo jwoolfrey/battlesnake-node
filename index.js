@@ -42,7 +42,7 @@ app.post('/move', (request, response) => {
     'down' : {'x':  0, 'y':  1},
     'left' : {'x': -1, 'y':  0}
   };
-  nextMove = ['up'];
+  nextMove = [];
   mood = {'hungry': false, 'hunting': false, 'hiding': false};
 
   player = request.body.you;
@@ -84,39 +84,46 @@ app.post('/move', (request, response) => {
     }
   });
   
-  directionOptions = [];
-  if((target.x - player.body.x) > 0){
-    directionOptions.push('left');
+  preferedDirections = [];
+  if((target.x - player.body[0].x) > 0){
+    preferedDirections.push('left');
   } else {
-    directionOptions.push('right');
+    preferedDirections.push('right');
   }
-  if((target.y - player.body.y) > 0){
-    directionOptions.push('up');
+  if((target.y - player.body[0].y) > 0){
+    preferedDirections.push('up');
   } else {
-    directionOptions.push('down');
+    preferedDirections.push('down');
   }
 
   console.log("---Picking Directions---");
-  console.log(directionOptions);
+  console.log(preferedDirections);
   console.log(player.body[0]);
   console.log("---Iteration!---");
-  directionOptions.forEach( opt => {
+  directionMap.keys.forEach( opt => {
     nextTile = {
       'x': player.body[0].x + directionMap[opt].x,
       'y': player.body[0].y + directionMap[opt].y
     };
     console.log(nextTile);
     if(nextTile.x < 0 || nextTile.x > board.width - 1){
+      console.log("> X out of bounds");
       return;
     }
     if(nextTile.y < 0 || nextTile.y > board.height - 1){
+      console.log("> Y out of bounds");
       return;
     }
     if(player.body.IndexOf(nextTile)){
+      console.log("> Cannot overlap");
       return;
     }
     console.log("+ Valid move: ", nextTile);
-    nextMove.unshift(opt);
+    if(preferedDirections.IndexOf(opt)){
+      nextMove.unshift(opt);
+    } else {
+      nextMove.push(opt);
+    }
   });
 
   console.log("Moving: ", nextMove[0]);
