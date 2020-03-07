@@ -132,7 +132,7 @@ app.post('/move', (request, response) => {
       return;
     }
     console.log("--- Testing Self-Collision ---");
-    if(player.body.indexOf(nextTile)){
+    if(player.body.indexOf(nextTile) >= 0){
       console.log("> Cannot overlap");
       return;
     }
