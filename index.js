@@ -147,7 +147,7 @@ app.post('/move', (request, response) => {
       return;
     }
     console.log("+ Valid move: ", nextTile);
-    if(preferedDirections.indexOf(opt)){
+    if(preferedDirections.indexOf(opt) >= 0){
       nextMove.unshift(opt);
     } else {
       nextMove.push(opt);
