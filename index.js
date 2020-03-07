@@ -36,54 +36,88 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-  var direction = 'up';
-  var food = request.body.board.food;
-  var prey = [];
-  var player = request.body.you;
-  console.log(player);
-  
-  console.log('Our head is at [%d,%d]', player.body[0].x, player.body[0].y);
-  request.body.board.snakes.forEach(snake => {
+  directionMap = {
+    'up': {'x': 0, 'y': -1},
+    'right': {'x': 1, 'y': 0},
+    'down': {'x': 0, 'y': 1},
+    'left': {'x': -1, 'y': 0}
+  };
+  nextMove = 'up';
+  mood = {'hungry': false, 'hunting': false, 'hiding': false};
+
+  player = request.body.you;
+  board = request.body.board;
+
+  foodList = board.food;
+  preyList = [];
+    
+  board.snakes.forEach(snake => {
     if(snake.id === player.id){
-        return;
+      return;
     }
     if(snake.body.length < player.body.length){
-        prey.push(snake);
+      preyList.push({'x': snake.body[0].x, 'y': snake.body[0].y});
     }
   });
-    
-  var target = food[0];
-  var target_dist = request.body.board.width * request.body.board.height;
-  var x_dist = 0;
-  var y_dist = 0;
   
-  food.forEach(f => {
-    x_dist = Math.abs(f.x - player.body[0].x);
-    y_dist = Math.abs(f.y - player.body[0].y);
-    var new_dist = Math.round(Math.sqrt(Math.pow(x_dist,2) + Math.pow(y_dist,2)));
-    if(new_dist < target_dist){
-      target_dist = new_dist;
-      target = f;
-    }
-  });
-  console.log('Food found at [%d,%d]', target.x, target.y);
-  
-  if(x_dist > y_dist){
-    direction = 'right';
-    if((target.x - player.body[0].x) < 0){
-      direction = 'left';
-    }
-  } else {
-    direction = 'down';
-    if((target.y - player.body[0].y) < 0){
-      direction = 'up';
-    }
+  avgFoodDistance = (board.width * board.height)/(foodList.length + preyList.length);
+  if(avgFoodDistance <= player.health){
+    mood.hungry = true;
   }
+
+  target = player.body[player.body.length - 1];
+  if(mood.hungry && foodList.length > 0){
+    target = foodList[0];
+  }
+  
+  shortestFoodDistance = board.width * board.height;
+  targetDistanceX = 0;
+  targetDistanceY = 0;
+  
+  foodList.forEach( food => {
+    targetDistanceX = Math.abs(food.x - player.body[0].x);
+    targetDistanceY = Math.abs(food.y - player.body[0].y);
+    newFoodDistance = Math.round(Math.hypot(targetDistanceX, targetDistanceY));
+    if(newFoodDistance < shortestFoodDistance){
+      shortestFoodDistance = newFoodDistance;
+      target = food;
+    }
+  });
+  
+  directionOptions = [];
+  if((target.x - player.body.x) > 0){
+    directionOptions.push('left');
+  } else {
+    directionOptions.push('right');
+  }
+  if((target.y - player.body.y) > 0){
+    directionOptions.push('up');
+  } else {
+    directionOptions.push('down');
+  }
+
+  directionOptions.forEach( opt => {
+    nextTile = {
+      'x': player.body.x + directionMap[opt].x,
+      'y': player.body.y + directionMap[opt].y
+    };
+    if(nextTile.x < 0 || nextTile.x > board.width - 1){
+      return;
+    }
+    if(nextTile.y < 0 || nextTile.y > board.height - 1){
+      return;
+    }
+    if(player.body.IndexOf(nextTile)){
+      return;
+    }
+    nextMove.unshift(opt);
+  });
+
   console.log('Moving in direction: %s', direction);
   
   // Response data
   const data = {
-    move: direction, // one of: ['up','down','left','right']
+    move: nextMove[0], // one of: ['up','down','left','right']
   }
 
   return response.json(data)
