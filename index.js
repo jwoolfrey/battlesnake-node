@@ -101,8 +101,9 @@ app.post('/move', (request, response) => {
   }
   console.log(mood);
   console.log("Avg Distance to Food: %d", avgFoodDistance);
-  console.log(foodList);
-  console.log(preyList);
+  console.log("food: %s", foodList);
+  console.log("prey: %s", preyList);
+  console.log("void: %s", voidList);
   console.log("###############");
 
   preferedDirections = [];
