@@ -100,7 +100,7 @@ app.post('/move', (request, response) => {
   console.log(preferedDirections);
   console.log(player.body[0]);
   console.log("---Iteration!---");
-  directionMap.keys.forEach( opt => {
+  directionMap.keys().forEach( opt => {
     nextTile = {
       'x': player.body[0].x + directionMap[opt].x,
       'y': player.body[0].y + directionMap[opt].y
