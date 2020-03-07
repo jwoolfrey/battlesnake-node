@@ -128,7 +128,7 @@ app.post('/move', (request, response) => {
     } else {
       voidList.push(snake.body[0]);
     }
-    snakeFood = findNextTiles(snake.body[0]);
+    //snakeFood = findNextTiles(snake.body[0]);
   });
   
   // mood logic
@@ -137,8 +137,6 @@ app.post('/move', (request, response) => {
     mood.hungry = true;
   } else if(preyList.length > 0) {
     mood.hunting = true;
-  } else {
-    mood.hiding = true;
   }
 
   target = player.body[player.body.length - 1];
@@ -177,7 +175,7 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, voidList)) {
       return;
     }
-
+    nextOptions = findNextTiles(nextTile);
     if(preferredDirections.indexOf(opt) >= 0) {
       nextMove.unshift(opt);
     } else {
@@ -186,12 +184,14 @@ app.post('/move', (request, response) => {
   });
 
   console.log("#### %s:%d ####", request.body.game.id, request.body.turn);
+  console.log("Snake: %s", player.id);
   console.log(mood);
   if(player.health === 100) {
     console.log("Health : 100 (I found food!)");
   } else {
     console.log("Health : %d", player.health);
   }
+  console.log("Length: %d", player.body.length);
   console.log("Threshold : %d", avgFoodDistance);
   console.log("food :", foodList.length);
   console.log("prey :", preyList.length);
