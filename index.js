@@ -57,7 +57,6 @@ app.post('/move', (request, response) => {
   };
 
   console.log("### Summary ###");
-  console.log("last move: %s", directionMap.IndexOf(playerVector));
   if(player.health === 100){
     console.log("Current Health: 100 (I found food!)");
   } else {
@@ -113,9 +112,9 @@ app.post('/move', (request, response) => {
   console.log(preferedDirections);
   console.log(player.body[0]);
   console.log("---Iteration!---");
-  console.log(directionMap.keys());
+  console.log(Object.keys(directionMap));
 
-  directionMap.keys().forEach( opt => {
+  Object.keys(directionMap).forEach( opt => {
     nextTile = {
       'x': player.body[0].x + directionMap[opt].x,
       'y': player.body[0].y + directionMap[opt].y
