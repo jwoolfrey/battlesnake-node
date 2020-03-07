@@ -140,7 +140,9 @@ app.post('/move', (request, response) => {
       return;
     }
     console.log("--- Testing Collision ---");
-    if(voidList.indexOf(nextTile) >= 0){
+    collision = (voidList.indexOf(nextTile) >= 0);
+    console.log("Collision :", collision);
+    if(collision){
       console.log("> Cannot overlap");
       return;
     }
