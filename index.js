@@ -127,8 +127,9 @@ app.post('/move', (request, response) => {
   board.snakes.forEach( snake => {
     voidList = voidList.concat(snake.body.slice(0, -1));
     localTiles = findLocalTiles(snake.body[0]);
+
     if(snake.body.length < player.body.length) {
-      preyList = preyList.concat(findLocalTiles(snake.body[0]));
+      preyList = preyList.concat(localTiles);
     } else {
       if(snake.id != player.id) {
         voidList = voidList.concat(localTiles);
@@ -211,12 +212,19 @@ app.post('/move', (request, response) => {
   console.log("Threshold : %d", avgFoodDistance);
   console.log("food :", foodList.length);
   console.log("prey :", preyList.length);
-  console.log("void :", voidList.length);
+  console.log("void :", voidList);
 
   console.log("--- Movement ---");
   console.log("Preferred :", preferredDirections);
   console.log("Player :", player.body[0]);
-  console.log("Target :", target);
+  if(mood.hungry) {
+    console.log("Target (Food) :", target);
+  } else if(mood.hunting) {
+    console.log("Target (Snake) :", target);
+  } else {
+    console.log("Target (Tail) :", target);
+  }
+  
   console.log("Moving: ", nextMove[0]);
   console.log("########################");
   
