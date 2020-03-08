@@ -51,11 +51,6 @@ app.post('/move', (request, response) => {
   foodList = board.food;
   preyList = [];
   voidList = [];
-  
-  playerVector = {
-    'x': player.body[0].x - player.body[1].x,
-    'y': player.body[0].y - player.body[1].y
-  };
 
   function withinBoardBounds (source) {
     if(source.x < 0 || source.x > board.width - 1) {
@@ -86,22 +81,16 @@ app.post('/move', (request, response) => {
     return true;
   }
 
-  function findLocalTiles (source, step = 1, banned = null) {
+  function findLocalTiles (source) {
     tileList = [];
-    candidate = {'x': 0, 'y': 0};
+    candidate = {};
     Object.values(directionMap).forEach( direction => {
       candidate.x = direction.x + source.x;
       candidate.y = direction.y + source.y;
-      if(!withinBoardBounds(candidate)) {
+      if(! withinBoardBounds(candidate)) {
         return;
       }
-      if(banned != null && sameCoordinates(candidate, banned)) {
-        return;
-      }
-      tileList.push(candidate);
-      if(step > 1) {
-        tileList.concat(findLocalTiles(candidate, step - 1, source));
-      }
+      tileList.push(Object.assign({}, candidate));
     });
     return tileList;
   }
@@ -186,7 +175,7 @@ app.post('/move', (request, response) => {
       'y': player.body[0].y + directionMap[opt].y
     };
 
-    if(!withinBoardBounds(nextTile)) {
+    if(! withinBoardBounds(nextTile)) {
       return;
     }
     if(coordinatesInList(nextTile, voidList)) {
@@ -218,11 +207,11 @@ app.post('/move', (request, response) => {
   console.log("Preferred :", preferredDirections);
   console.log("Player :", player.body[0]);
   if(mood.hungry) {
-    console.log("Target (Food) :", target);
+    console.log("Target : %s (Food)", target);
   } else if(mood.hunting) {
-    console.log("Target (Snake) :", target);
+    console.log("Target : %s (Snake)", target);
   } else {
-    console.log("Target (Tail) :", target);
+    console.log("Target : %s (Tail)", target);
   }
   
   console.log("Moving: ", nextMove[0]);
