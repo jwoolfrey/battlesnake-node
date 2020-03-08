@@ -52,6 +52,8 @@ app.post('/move', (request, response) => {
   preyList = [];
   voidList = [];
 
+  preyCount = 0;
+
   function withinBoardBounds (source) {
     if(source.x < 0 || source.x > board.width - 1) {
       return false;
@@ -118,6 +120,7 @@ app.post('/move', (request, response) => {
     localTiles = findLocalTiles(snake.body[0]);
 
     if(snake.body.length < player.body.length) {
+      preyCount += 1;
       preyList = preyList.concat(localTiles);
     } else {
       if(snake.id != player.id) {
@@ -200,7 +203,7 @@ app.post('/move', (request, response) => {
   console.log("Length: %d", player.body.length);
   console.log("Threshold : %d", avgFoodDistance);
   console.log("food :", foodList.length);
-  console.log("prey :", preyList.length);
+  console.log("prey : %d/%d", preyCount, preyList.length);
   console.log("void :", voidList);
 
   console.log("--- Movement ---");
