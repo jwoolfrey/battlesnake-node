@@ -86,7 +86,7 @@ app.post('/move', (request, response) => {
     return true;
   }
 
-  function findNextTiles (source, step = 1, banned = null) {
+  function findLocalTiles (source, step = 1, banned = null) {
     tileList = [];
     candidate = {'x': 0, 'y': 0};
     Object.values(directionMap).forEach( direction => {
@@ -100,7 +100,7 @@ app.post('/move', (request, response) => {
       }
       tileList.push(candidate);
       if(step > 1) {
-        tileList.concat(findNextTiles(candidate, step - 1, source));
+        tileList.concat(findLocalTiles(candidate, step - 1, source));
       }
     });
     return tileList;
@@ -111,6 +111,9 @@ app.post('/move', (request, response) => {
     destination = source;
 
     list.forEach( candidate => {
+      if(coordinatesInList(candidate, voidList)) {
+        return;
+      }
       newDistance = Math.round(Math.hypot(Math.abs(candidate.x - source.x), Math.abs(candidate.y - source.y)));
       if(newDistance < shortestDistance){
         //check for obstruction?
@@ -122,13 +125,24 @@ app.post('/move', (request, response) => {
   }
 
   board.snakes.forEach( snake => {
-    voidList = voidList.concat(snake.body.slice(1, -1));
+    voidList = voidList.concat(snake.body.slice(0, -1));
+    localTiles = findLocalTiles(snake.body[0]);
     if(snake.body.length < player.body.length) {
-      preyList.push(snake.body[0]);
+      preyList = preyList.concat(findLocalTiles(snake.body[0]));
     } else {
-      voidList.push(snake.body[0]);
+      if(snake.id != player.id) {
+        voidList = voidList.concat(localTiles);
+      }
     }
-    //snakeFood = findNextTiles(snake.body[0]);
+    likelyToGrow = false;
+    for(i = 0; i < localTiles.length; i++) {
+      if(coordinatesInList(localTiles[i], foodList)) {
+        likelyToGrow = true;
+      }
+    }
+    if(likelyToGrow) {
+      voidList.push(snake.body[snake.body.length - 1]);
+    }
   });
   
   // mood logic
@@ -144,7 +158,7 @@ app.post('/move', (request, response) => {
   target = player.body[player.body.length - 1];
   if(mood.hungry && foodList.length > 0) {
     target = findClosestTarget(player.body[0], foodList);
-  } else if(mood.hunting) {
+  } else if(mood.hunting && preyList.length > 0) {
     target = findClosestTarget(player.body[0], preyList);
   }
 
@@ -177,7 +191,7 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, voidList)) {
       return;
     }
-    nextOptions = findNextTiles(nextTile);
+    nextOptions = findLocalTiles(nextTile);
     if(preferredDirections.indexOf(opt) >= 0) {
       nextMove.unshift(opt);
     } else {
