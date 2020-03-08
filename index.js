@@ -204,7 +204,7 @@ app.post('/move', (request, response) => {
   console.log("Threshold : %d", avgFoodDistance);
   console.log("food :", foodList.length);
   console.log("prey : %d/%d", preyCount, preyList.length);
-  console.log("void :", voidList);
+  console.log("void :", voidList.length);
 
   console.log("--- Movement ---");
   console.log("Preferred :", preferredDirections);
