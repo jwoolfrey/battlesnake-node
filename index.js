@@ -181,10 +181,22 @@ app.post('/move', (request, response) => {
     if(! withinBoardBounds(nextTile)) {
       return;
     }
+    
     if(coordinatesInList(nextTile, voidList)) {
       return;
     }
+    
     nextOptions = findLocalTiles(nextTile);
+    futureVoid = 0;
+    for(i = 0; i < nextOptions.length; i++) {
+      if(coordinatesInList(nextOptions[i], voidList)) {
+        futureVoid += 1;
+      }
+    }
+    if(futureVoid == 4) {
+      return;
+    }
+    
     if(preferredDirections.indexOf(opt) >= 0) {
       nextMove.unshift(opt);
     } else {
@@ -192,33 +204,13 @@ app.post('/move', (request, response) => {
     }
   });
 
-  console.log("#### %s:%d ####", request.body.game.id, request.body.turn);
-  console.log("Snake: %s", player.id);
+  console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
+  console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
   console.log(mood);
-  if(player.health === 100) {
-    console.log("Health : 100 (I found food!)");
-  } else {
-    console.log("Health : %d", player.health);
-  }
-  console.log("Length: %d", player.body.length);
-  console.log("Threshold : %d", avgFoodDistance);
-  console.log("food :", foodList.length);
-  console.log("prey : %d/%d", preyCount, preyList.length);
-  console.log("void :", voidList.length);
-
-  console.log("--- Movement ---");
-  console.log("Preferred :", preferredDirections);
-  console.log("Player :", player.body[0]);
-  if(mood.hungry) {
-    console.log("Target : %s (Food)", target);
-  } else if(mood.hunting) {
-    console.log("Target : %s (Snake)", target);
-  } else {
-    console.log("Target : %s (Tail)", target);
-  }
-  
-  console.log("Moving: ", nextMove[0]);
-  console.log("########################");
+  console.log("Fo:%d Pr:%d/%d Vo:%d", foodList.length, preyCount, preyList.length, voidList.length);
+  console.log("Pl:%s Ta:%s", player.body[0], target);
+  console.log("Pr: ", preferredDirections);
+  console.log("Mo: ", nextMove[0]);
   
   // Response data
   const data = {
