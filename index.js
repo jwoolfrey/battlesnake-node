@@ -217,7 +217,7 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, ignoreList) > 0) {
       return;
     }
-    /**/
+    /*
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
@@ -233,16 +233,17 @@ app.post('/move', (request, response) => {
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
     tileScore += (-1 * coordinatesInList(scoreRegion, dangerList));
-    /**/
+    /*
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
     }
-    
+    /*
     nextMoves.push({'direction': opt, 'score': tileScore});
+    /**/
   });
   
   moveScore = 0;
-  /*
+  /**/
   nextMoves.forEach( option => {
     if(option.score > moveScore) {
       nextMove = option.direction;
