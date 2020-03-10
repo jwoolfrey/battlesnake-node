@@ -237,7 +237,7 @@ app.post('/move', (request, response) => {
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
     }
-    nextMoves.push({'direction': opt, 'score': tileScore});
+    //nextMoves.push({'direction': opt, 'score': tileScore});
   });
   
   moveScore = 0;
@@ -249,7 +249,7 @@ app.post('/move', (request, response) => {
     }
   });
   */
-  nextMove = nextMoves[0];
+  nextMove = 'up';
   
   if(debug > 0) {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
