@@ -208,8 +208,7 @@ app.post('/move', (request, response) => {
   console.log(mood);
   console.log("Fo:%d Pr:%d/%d Vo:%d", foodList.length, preyCount, board.snakes.length - 1, voidList.length);
   console.log("Pl:%s Ta:%s", player.body[0], target);
-  console.log("Pr: ", preferredDirections);
-  console.log("Mo: ", nextMove[0]);
+  console.log("Mv: %s Pr: %s Op: %s", nextMove[0], preferredDirections, nextMove);
   
   // Response data
   const data = {
@@ -221,7 +220,7 @@ app.post('/move', (request, response) => {
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
-  if(reques.body.you.health > 0) {
+  if(request.body.you.health > 0) {
     console.log("* We've won! *");
   } else {
     console.log("* We didn't make it... *");
