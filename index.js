@@ -243,7 +243,7 @@ app.post('/move', (request, response) => {
   });
   
   moveScore = 0;
-  /**/
+  /*
   nextMoves.forEach( option => {
     if(option.score > moveScore) {
       nextMove = option.direction;
