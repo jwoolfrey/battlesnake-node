@@ -230,7 +230,7 @@ app.post('/move', (request, response) => {
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
 
-    tileScore = scoreMap.keys().length;
+    tileScore = Object.keys(scoreMap).length;
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
     tileScore += (-1 * coordinatesInList(scoreRegion, dangerList));
