@@ -54,14 +54,21 @@ app.post('/move', (request, response) => {
 
   preyCount = 0;
 
-  function withinBoardBounds (source) {
-    if(source.x < 0 || source.x > board.width - 1) {
-      return false;
+  function coordinatesWithinBounds (coordinates) {
+    if(! Array.isArray(coordinates)) {
+      coordinates = [coordinates];
     }
-    if(source.y < 0 || source.y > board.height - 1) {
-      return false;
+    count = 0;
+    for(i = 0; i < coordinates.length; i++) {
+      if(coordinates[i].x < 0 || coordinates[i].x > board.width - 1) {
+        continue;
+      }
+      if(coordinates[i].y < 0 || coordinates[i].y > board.height - 1) {
+        continue;
+      }
+      count += 1;
     }
-    return true;
+    return count;
   }
 
   function sameCoordinates (coord_a, coord_b) {
@@ -95,7 +102,7 @@ app.post('/move', (request, response) => {
     Object.values(directionMap).forEach( direction => {
       candidate.x = direction.x + source.x;
       candidate.y = direction.y + source.y;
-      if(! withinBoardBounds(candidate)) {
+      if(coordinatesWithinBounds(candidate) < 1) {
         return;
       }
       tileList.push(Object.assign({}, candidate));
@@ -121,6 +128,18 @@ app.post('/move', (request, response) => {
     return destination;
   }
 
+  function findVolumeSize (source, limit = 0) {
+    validTiles = new Set();
+    workingTiles = [];
+    localTiles = findLocalTiles(source);
+    localTiles.forEach( tile => {
+        if(! coordinatesInList(tile, ignoreList)) {
+          // shrug
+        }
+    });
+    return validTiles.size;
+  }
+  
   board.snakes.forEach( snake => {
     ignoreList = ignoreList.concat(snake.body.slice(0, -1));
     localTiles = findLocalTiles(snake.body[0]);
@@ -180,7 +199,7 @@ app.post('/move', (request, response) => {
       'y': player.body[0].y + directionMap[opt].y
     };
 
-    if(! withinBoardBounds(nextTile)) {
+    if(coordinatesWithinBounds(nextTile) < 1) {
       return;
     }
     
@@ -189,7 +208,9 @@ app.post('/move', (request, response) => {
     }
     
     nextOptions = findLocalTiles(nextTile);
-    switch(coordinatesInList(nextOptions, ignoreList)) {
+    invalidTiles = coordinatesInList(nextOptions, ignoreList);
+    invalidTiles += (4 - nextOptions.length);
+    switch(invalidTiles) {
       case 4:
       case 3:
         return;
@@ -211,7 +232,7 @@ app.post('/move', (request, response) => {
   console.log(mood);
   console.log("Fo:%d Pr:%d/%d Ig:%d", foodList.length, preyCount, board.snakes.length - 1, ignoreList.length);
   console.log("Pl:%s Ta:%s", player.body[0], target);
-  console.log("Mv: %s Pr: %s Bk: %s", nextMove[0], preferredMoves, backupMoves);
+  console.log("Mv: %s Pr: %s Bk: %s", nextMoves[0], preferredMoves, backupMoves);
   
   // Response data
   const data = {
