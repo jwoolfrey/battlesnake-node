@@ -81,7 +81,7 @@ app.post('/move', (request, response) => {
     count = 0;
     for(i = 0; i < coordinates.length; i++) {
         if((list.findIndex( element => (
-            coordinates.x == element.x && coordinates.y == element.y
+            coordinates[i].x == element.x && coordinates[i].y == element.y
         ))) >= 0) {
             count += 1;
         }
