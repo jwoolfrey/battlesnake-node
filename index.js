@@ -37,12 +37,21 @@ app.post('/start', (request, response) => {
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
   directionMap = {
-    'up'   : {'x':  0, 'y': -1},
-    'right': {'x':  1, 'y':  0},
-    'down' : {'x':  0, 'y':  1},
-    'left' : {'x': -1, 'y':  0}
-  };
-  nextMove = [];
+  'orth': {
+    'origin': {'x':  0, 'y':  0},
+    'up'    : {'x':  0, 'y': -1},
+    'right' : {'x':  1, 'y':  0},
+    'down'  : {'x':  0, 'y':  1},
+    'left'  : {'x': -1, 'y':  0}
+  },
+  'diag': {
+    'origin'    : {'x':  0, 'y':  0},
+    'up-right'  : {'x':  1, 'y': -1},
+    'down-right': {'x':  1, 'y':  1},
+    'down-left' : {'x': -1, 'y':  1},
+    'up-left'   : {'x': -1, 'y': -1},
+  }};
+  nextMoves = [];
   mood = {'hungry': false, 'hunting': false, 'hiding': false};
 
   player = request.body.you;
@@ -51,9 +60,14 @@ app.post('/move', (request, response) => {
   foodList = board.food;
   preyList = [];
   ignoreList = [];
+  dangerList = [];
 
   preyCount = 0;
 
+  function addCoordinates(coord_a, coord_b) {
+    return {'x': coord_a.x + coord_b.x, 'y': coord_a.y + coord_b.y};
+  }
+  
   function coordinatesWithinBounds (coordinates) {
     if(! Array.isArray(coordinates)) {
       coordinates = [coordinates];
@@ -96,12 +110,11 @@ app.post('/move', (request, response) => {
     return count;
   }
 
-  function findLocalTiles (source) {
+  function findLocalTiles (source, list) {
     tileList = [];
     candidate = {};
-    Object.values(directionMap).forEach( direction => {
-      candidate.x = direction.x + source.x;
-      candidate.y = direction.y + source.y;
+    Object.values(list).forEach( direction => {
+      candidate = addCoordinates(direction, source);
       if(coordinatesWithinBounds(candidate) < 1) {
         return;
       }
@@ -131,7 +144,7 @@ app.post('/move', (request, response) => {
   function findVolumeSize (source, limit = 0) {
     validTiles = new Set();
     workingTiles = [];
-    localTiles = findLocalTiles(source);
+    localTiles = findLocalTiles(source, directionMap['ortho']);
     localTiles.forEach( tile => {
         if(! coordinatesInList(tile, ignoreList)) {
           // shrug
@@ -142,14 +155,14 @@ app.post('/move', (request, response) => {
   
   board.snakes.forEach( snake => {
     ignoreList = ignoreList.concat(snake.body.slice(0, -1));
-    localTiles = findLocalTiles(snake.body[0]);
+    localTiles = findLocalTiles(snake.body[0], directionMap['ortho']);
 
     if(snake.body.length < player.body.length) {
       preyCount += 1;
       preyList = preyList.concat(localTiles);
     } else {
       if(snake.id != player.id) {
-        ignoreList = ignoreList.concat(localTiles);
+        dangerList = dangerList.concat(localTiles);
       }
     }
     if(coordinatesInList(localTiles, foodList) > 0) {
@@ -193,11 +206,9 @@ app.post('/move', (request, response) => {
 
   preferredMoves = [];
   backupMoves = [];
-  Object.keys(directionMap).forEach( opt => {
-    nextTile = {
-      'x': player.body[0].x + directionMap[opt].x,
-      'y': player.body[0].y + directionMap[opt].y
-    };
+  Object.keys(directionMap['orth']).forEach( opt => {
+    nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
+    tileScore = 0;
 
     if(coordinatesWithinBounds(nextTile) < 1) {
       return;
@@ -207,36 +218,46 @@ app.post('/move', (request, response) => {
       return;
     }
     
-    nextOptions = findLocalTiles(nextTile);
+    nextOptions = findLocalTiles(nextTile, directionMap['ortho']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
-    switch(invalidTiles) {
-      case 4:
-      case 3:
-        return;
-      default:
-        break;
+    if(invalidTiles == 4) {
+      return;
     }
     
+    scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
+    scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
+    scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
+    
+    tileScore = scoreMap.keys().length;
     if(preferredDirections.indexOf(opt) >= 0) {
-      preferredMoves.push(opt);
-    } else {
-      backupMoves.push(opt);
+      tileScore += 1;
     }
+    tileScore += (-1 * (tileScore - scoreRegion.length));
+    tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
+    tileScore += (-1 * coordinatesInList(scoreRegion, dangerList));
+
+    nextMoves.push({'direction': opt, 'score': tileScore});
   });
   
-  nextMoves = preferredMoves.concat(backupMoves)
+  moveScore = 0;
+  nextMoves.forEach( option => {
+    if(option.score > moveScore) {
+      nextMove = option.direction;
+      moveScore = option.score;
+    }
+  });
 
   console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
   console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
   console.log(mood);
   console.log("Fo:%d Pr:%d/%d Ig:%d", foodList.length, preyCount, board.snakes.length - 1, ignoreList.length);
   console.log("Pl:%s Ta:%s", player.body[0], target);
-  console.log("Mv: %s Pr: %s Bk: %s", nextMoves[0], preferredMoves, backupMoves);
+  console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
   
   // Response data
   const data = {
-    move: nextMoves[0], // one of: ['up','down','left','right']
+    move: nextMove, // one of: ['up','down','left','right']
   }
 
   return response.json(data)
@@ -245,7 +266,7 @@ app.post('/move', (request, response) => {
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
   console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
-  if(request.body.you.health > 0) {
+  if(request.body.snakes[0].id == request.body.you.id) {
     console.log("* We've won! *");
   } else {
     console.log("* We didn't make it... *");
