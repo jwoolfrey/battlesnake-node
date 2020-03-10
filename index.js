@@ -100,9 +100,7 @@ app.post('/move', (request, response) => {
     }
     count = 0;
     for(i = 0; i < coordinates.length; i++) {
-        if((list.findIndex( element => (
-            coordinates[i].x == element.x && coordinates[i].y == element.y
-        ))) >= 0) {
+        if((list.findIndex( element => sameCoordinates(coordinates[i], element))) >= 0) {
             count += 1;
         }
     }
@@ -112,7 +110,7 @@ app.post('/move', (request, response) => {
   function findLocalTiles (source, list) {
     tileList = [];
     candidate = {};
-    Object.values(list).forEach( direction => {
+    list.forEach( direction => {
       candidate = addCoordinates(direction, source);
       if(coordinatesWithinBounds(candidate) < 1) {
         return;
@@ -217,6 +215,7 @@ app.post('/move', (request, response) => {
       return;
     }
     
+    console.log("invalid tile check");
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
@@ -224,10 +223,12 @@ app.post('/move', (request, response) => {
       return;
     }
     
+    console.log("score region setup");
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
     
+    console.log("score calculation");
     tileScore = scoreMap.keys().length;
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
