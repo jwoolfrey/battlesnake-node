@@ -49,9 +49,8 @@ app.post('/move', (request, response) => {
     'up-right'  : {'x':  1, 'y': -1},
     'down-right': {'x':  1, 'y':  1},
     'down-left' : {'x': -1, 'y':  1},
-    'up-left'   : {'x': -1, 'y': -1},
+    'up-left'   : {'x': -1, 'y': -1}
   }};
-  nextMoves = [];
   mood = {'hungry': false, 'hunting': false, 'hiding': false};
 
   player = request.body.you;
@@ -144,7 +143,7 @@ app.post('/move', (request, response) => {
   function findVolumeSize (source, limit = 0) {
     validTiles = new Set();
     workingTiles = [];
-    localTiles = findLocalTiles(source, directionMap['ortho']);
+    localTiles = findLocalTiles(source, directionMap['orth']);
     localTiles.forEach( tile => {
         if(! coordinatesInList(tile, ignoreList)) {
           // shrug
@@ -155,7 +154,7 @@ app.post('/move', (request, response) => {
   
   board.snakes.forEach( snake => {
     ignoreList = ignoreList.concat(snake.body.slice(0, -1));
-    localTiles = findLocalTiles(snake.body[0], directionMap['ortho']);
+    localTiles = findLocalTiles(snake.body[0], directionMap['orth']);
 
     if(snake.body.length < player.body.length) {
       preyCount += 1;
@@ -218,7 +217,7 @@ app.post('/move', (request, response) => {
       return;
     }
     
-    nextOptions = findLocalTiles(nextTile, directionMap['ortho']);
+    nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
     if(invalidTiles == 4) {
@@ -266,7 +265,7 @@ app.post('/move', (request, response) => {
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
   console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
-  if(request.body.snakes[0].id == request.body.you.id) {
+  if(request.body.board.snakes[0].id == request.body.you.id) {
     console.log("* We've won! *");
   } else {
     console.log("* We didn't make it... *");
