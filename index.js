@@ -50,7 +50,7 @@ app.post('/move', (request, response) => {
 
   foodList = board.food;
   preyList = [];
-  voidList = [];
+  ignoreList = [];
 
   preyCount = 0;
 
@@ -108,7 +108,7 @@ app.post('/move', (request, response) => {
     destination = source;
 
     list.forEach( candidate => {
-      if(coordinatesInList(candidate, voidList) > 0) {
+      if(coordinatesInList(candidate, ignoreList) > 0) {
         return;
       }
       newDistance = Math.round(Math.hypot(Math.abs(candidate.x - source.x), Math.abs(candidate.y - source.y)));
@@ -122,7 +122,7 @@ app.post('/move', (request, response) => {
   }
 
   board.snakes.forEach( snake => {
-    voidList = voidList.concat(snake.body.slice(0, -1));
+    ignoreList = ignoreList.concat(snake.body.slice(0, -1));
     localTiles = findLocalTiles(snake.body[0]);
 
     if(snake.body.length < player.body.length) {
@@ -130,11 +130,11 @@ app.post('/move', (request, response) => {
       preyList = preyList.concat(localTiles);
     } else {
       if(snake.id != player.id) {
-        voidList = voidList.concat(localTiles);
+        ignoreList = ignoreList.concat(localTiles);
       }
     }
     if(coordinatesInList(localTiles, foodList) > 0) {
-      voidList.push(snake.body[snake.body.length - 1]);
+      ignoreList.push(snake.body[snake.body.length - 1]);
     }
   });
   
@@ -172,6 +172,8 @@ app.post('/move', (request, response) => {
     }
   }
 
+  preferredMoves = [];
+  backupMoves = [];
   Object.keys(directionMap).forEach( opt => {
     nextTile = {
       'x': player.body[0].x + directionMap[opt].x,
@@ -182,37 +184,38 @@ app.post('/move', (request, response) => {
       return;
     }
     
-    if(coordinatesInList(nextTile, voidList) > 0) {
+    if(coordinatesInList(nextTile, ignoreList) > 0) {
       return;
     }
     
     nextOptions = findLocalTiles(nextTile);
-    switch(coordinatesInList(nextOptions, voidList)) {
+    switch(coordinatesInList(nextOptions, ignoreList)) {
       case 4:
+      case 3:
         return;
-      case 1:
-        break;
       default:
         break;
     }
     
     if(preferredDirections.indexOf(opt) >= 0) {
-      nextMove.unshift(opt);
+      preferredMoves.push(opt);
     } else {
-      nextMove.push(opt);
+      backupMoves.push(opt);
     }
   });
+  
+  nextMoves = preferredMoves.concat(backupMoves)
 
   console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
   console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
   console.log(mood);
-  console.log("Fo:%d Pr:%d/%d Vo:%d", foodList.length, preyCount, board.snakes.length - 1, voidList.length);
+  console.log("Fo:%d Pr:%d/%d Ig:%d", foodList.length, preyCount, board.snakes.length - 1, ignoreList.length);
   console.log("Pl:%s Ta:%s", player.body[0], target);
-  console.log("Mv: %s Pr: %s Op: %s", nextMove[0], preferredDirections, nextMove);
+  console.log("Mv: %s Pr: %s Bk: %s", nextMove[0], preferredMoves, backupMoves);
   
   // Response data
   const data = {
-    move: nextMove[0], // one of: ['up','down','left','right']
+    move: nextMoves[0], // one of: ['up','down','left','right']
   }
 
   return response.json(data)
@@ -220,6 +223,7 @@ app.post('/move', (request, response) => {
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
+  console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
   if(request.body.you.health > 0) {
     console.log("* We've won! *");
   } else {
