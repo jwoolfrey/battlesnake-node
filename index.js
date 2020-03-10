@@ -110,7 +110,7 @@ app.post('/move', (request, response) => {
   function findLocalTiles (source, list) {
     tileList = [];
     candidate = {};
-    list.forEach( direction => {
+    Object.values(list).forEach( direction => {
       candidate = addCoordinates(direction, source);
       if(coordinatesWithinBounds(candidate) < 1) {
         return;
@@ -201,13 +201,10 @@ app.post('/move', (request, response) => {
     }
   }
 
-  preferredMoves = [];
-  backupMoves = [];
   Object.keys(directionMap['orth']).forEach( opt => {
     console.log(opt);
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
-    tileScore = 0;
-
+    
     if(coordinatesWithinBounds(nextTile) < 1) {
       return;
     }
