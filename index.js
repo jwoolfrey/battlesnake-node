@@ -206,9 +206,9 @@ app.post('/move', (request, response) => {
   }
 
   if(debug > 1) {console.log("! movement filtering");}
-  Object.keys(directionMap['orth']).forEach( opt => {console.log(opt)});
   Object.keys(directionMap['orth']).forEach( opt => {
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
+    tileScore = 0;
     
     if(coordinatesWithinBounds(nextTile) < 1) {
       return;
@@ -224,19 +224,21 @@ app.post('/move', (request, response) => {
     if(invalidTiles == 4) {
       return;
     }
-
+    
+    /*
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
 
     tileScore = scoreMap.keys().length;
-    if(preferredDirections.indexOf(opt) >= 0) {
-      tileScore += 1;
-    }
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
     tileScore += (-1 * coordinatesInList(scoreRegion, dangerList));
-
+    */
+    
+    if(preferredDirections.indexOf(opt) >= 0) {
+      tileScore += 1;
+    }
     nextMoves.push({'direction': opt, 'score': tileScore});
   });
   
