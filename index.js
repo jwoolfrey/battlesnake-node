@@ -217,7 +217,7 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, ignoreList) > 0) {
       return;
     }
-    /**/
+    /*
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
@@ -242,7 +242,7 @@ app.post('/move', (request, response) => {
   });
   
   moveScore = 0;
-  /*
+  /**/
   nextMoves.forEach( option => {
     if(option.score > moveScore) {
       nextMove = option.direction;
