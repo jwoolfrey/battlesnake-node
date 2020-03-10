@@ -224,11 +224,11 @@ app.post('/move', (request, response) => {
     if(invalidTiles == 4) {
       return;
     }
-    /**/
+    /*
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
-    /**/
+    /*
     tileScore = scoreMap.keys().length;
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
