@@ -180,7 +180,7 @@ app.post('/move', (request, response) => {
     mood.hiding = true;
   }
 
-  if(debug) {console.log("! target selection");}
+  if(debug > 1) {console.log("! target selection");}
   target = player.body[player.body.length - 1];
   if(mood.hungry && foodList.length > 0) {
     target = findClosestTarget(player.body[0], foodList);
@@ -217,7 +217,7 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, ignoreList) > 0) {
       return;
     }
-    /*
+    /**/
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
@@ -238,11 +238,11 @@ app.post('/move', (request, response) => {
       tileScore += 1;
     }
     
-    //nextMoves.push({'direction': opt, 'score': tileScore});
+    nextMoves.push({'direction': opt, 'score': tileScore});
   });
   
   moveScore = 0;
-  /**/
+  /*
   nextMoves.forEach( option => {
     if(option.score > moveScore) {
       nextMove = option.direction;
