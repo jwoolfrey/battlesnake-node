@@ -229,7 +229,7 @@ app.post('/move', (request, response) => {
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
-    */
+    /*
     tileScore = scoreMap.keys().length;
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
@@ -238,6 +238,7 @@ app.post('/move', (request, response) => {
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
     }
+    */
     nextMoves.push({'direction': opt, 'score': tileScore});
   });
   
