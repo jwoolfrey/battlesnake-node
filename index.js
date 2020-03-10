@@ -217,14 +217,14 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, ignoreList) > 0) {
       return;
     }
-    
+    /*
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
     if(invalidTiles == 4) {
       return;
     }
-    /*
+    /**/
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
@@ -233,7 +233,7 @@ app.post('/move', (request, response) => {
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
     tileScore += (-1 * coordinatesInList(scoreRegion, dangerList));
-    */
+    /**/
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
     }
