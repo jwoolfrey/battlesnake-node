@@ -257,7 +257,7 @@ app.post('/move', (request, response) => {
     console.log(mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", foodList.length, preyCount, board.snakes.length - 1, ignoreList.length);
     console.log("Pl:%s Ta:%s", player.body[0], target);
-    console.log("Mv: %s Pr: %s Op: %s", nextMove, preferredDirections, nextMoves);
+    console.log("Mv: %s Pr: %s Op:", nextMove, preferredDirections, nextMoves);
   }
   
   // Response data
