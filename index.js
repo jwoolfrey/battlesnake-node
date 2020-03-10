@@ -238,7 +238,7 @@ app.post('/move', (request, response) => {
       tileScore += 1;
     }
     
-    nextMoves.push({'direction': opt, 'score': tileScore});
+    //nextMoves.push({'direction': opt, 'score': tileScore});
   });
   
   moveScore = 0;
