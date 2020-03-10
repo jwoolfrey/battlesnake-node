@@ -218,14 +218,14 @@ app.post('/move', (request, response) => {
       return;
     }
     
-    /*
+    
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
     if(invalidTiles == 4) {
       return;
     }
-    
+    /*
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
