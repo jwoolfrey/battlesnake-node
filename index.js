@@ -217,41 +217,37 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, ignoreList) > 0) {
       return;
     }
-    /**/
+    
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
     if(invalidTiles == 4) {
       return;
     }
-    /**/
-    scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
+    
+    scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
-    /*
+
     tileScore = scoreMap.keys().length;
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
     tileScore += (-1 * coordinatesInList(scoreRegion, dangerList));
-    /*
+
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
     }
-    /*
+
     nextMoves.push({'direction': opt, 'score': tileScore});
-    /**/
   });
   
   moveScore = 0;
-  /*
   nextMoves.forEach( option => {
     if(option.score > moveScore) {
       nextMove = option.direction;
       moveScore = option.score;
     }
   });
-  /**/
-  nextMove = 'up';
   
   if(debug > 0) {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
