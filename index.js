@@ -75,12 +75,18 @@ app.post('/move', (request, response) => {
   }
 
   function coordinatesInList (coordinates, list) {
-    if((list.findIndex( element => (
-      coordinates.x == element.x && coordinates.y == element.y
-    ))) < 0) {
-      return false;
+    if(! Array.isArray(coordinates)) {
+      coordinates = [coordinates];
     }
-    return true;
+    count = 0;
+    for(i = 0; i < coordinates.length; i++) {
+        if((list.findIndex( element => (
+            coordinates.x == element.x && coordinates.y == element.y
+        ))) >= 0) {
+            count += 1;
+        }
+    }
+    return count;
   }
 
   function findLocalTiles (source) {
@@ -102,7 +108,7 @@ app.post('/move', (request, response) => {
     destination = source;
 
     list.forEach( candidate => {
-      if(coordinatesInList(candidate, voidList)) {
+      if(coordinatesInList(candidate, voidList) > 0) {
         return;
       }
       newDistance = Math.round(Math.hypot(Math.abs(candidate.x - source.x), Math.abs(candidate.y - source.y)));
@@ -127,13 +133,7 @@ app.post('/move', (request, response) => {
         voidList = voidList.concat(localTiles);
       }
     }
-    likelyToGrow = false;
-    for(i = 0; i < localTiles.length; i++) {
-      if(coordinatesInList(localTiles[i], foodList)) {
-        likelyToGrow = true;
-      }
-    }
-    if(likelyToGrow) {
+    if(coordinatesInList(localTiles, foodList) > 0) {
       voidList.push(snake.body[snake.body.length - 1]);
     }
   });
@@ -182,19 +182,18 @@ app.post('/move', (request, response) => {
       return;
     }
     
-    if(coordinatesInList(nextTile, voidList)) {
+    if(coordinatesInList(nextTile, voidList) > 0) {
       return;
     }
     
     nextOptions = findLocalTiles(nextTile);
-    futureVoid = 0;
-    for(i = 0; i < nextOptions.length; i++) {
-      if(coordinatesInList(nextOptions[i], voidList)) {
-        futureVoid += 1;
-      }
-    }
-    if(futureVoid == 4) {
-      return;
+    switch(coordinatesInList(nextOptions, voidList)) {
+      case 4:
+        return;
+      case 1:
+        break;
+      default:
+        break;
     }
     
     if(preferredDirections.indexOf(opt) >= 0) {
