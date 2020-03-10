@@ -206,6 +206,7 @@ app.post('/move', (request, response) => {
   }
 
   if(debug > 1) {console.log("! movement filtering");}
+  nextMoves = [];
   Object.keys(directionMap['orth']).forEach( opt => {
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
     tileScore = 0;
