@@ -218,6 +218,7 @@ app.post('/move', (request, response) => {
       return;
     }
 
+    /*
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
