@@ -36,7 +36,7 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-  debug = 2;
+  debug = 1;
   directionMap = {
   'orth': {
     'origin': {'x':  0, 'y':  0},
@@ -224,11 +224,11 @@ app.post('/move', (request, response) => {
     if(invalidTiles == 4) {
       return;
     }
-    /*
+    /**/
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
-    /*
+    /**/
     tileScore = scoreMap.keys().length;
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
@@ -242,7 +242,7 @@ app.post('/move', (request, response) => {
   });
   
   moveScore = 0;
-  /**/
+  /*
   nextMoves.forEach( option => {
     if(option.score > moveScore) {
       nextMove = option.direction;
