@@ -234,6 +234,7 @@ app.post('/move', (request, response) => {
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
     tileScore += (-1 * coordinatesInList(scoreRegion, dangerList));
+    tileScore += ( 1 * coordinatesInList(scoreRegion, foodList));
 
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
@@ -256,7 +257,7 @@ app.post('/move', (request, response) => {
     console.log(mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", foodList.length, preyCount, board.snakes.length - 1, ignoreList.length);
     console.log("Pl:%s Ta:%s", player.body[0], target);
-    console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
+    console.log("Mv: %s Pr: %s Op: %s", nextMove, preferredDirections, nextMoves);
   }
   
   // Response data
