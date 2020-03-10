@@ -218,7 +218,6 @@ app.post('/move', (request, response) => {
       return;
     }
 
-    /*
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
@@ -226,7 +225,6 @@ app.post('/move', (request, response) => {
       return;
     }
     
-    /*
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
@@ -235,8 +233,7 @@ app.post('/move', (request, response) => {
     tileScore += (-1 * (tileScore - scoreRegion.length));
     tileScore += (-1 * coordinatesInList(scoreRegion, ignoreList));
     tileScore += (-1 * coordinatesInList(scoreRegion, dangerList));
-    */
-    
+
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
     }
@@ -244,13 +241,16 @@ app.post('/move', (request, response) => {
   });
   
   moveScore = 0;
+  /*
   nextMoves.forEach( option => {
     if(option.score > moveScore) {
       nextMove = option.direction;
       moveScore = option.score;
     }
   });
-
+  */
+  nextMove = nextMoves[0];
+  
   if(debug > 0) {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
