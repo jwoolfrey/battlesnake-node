@@ -36,6 +36,7 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
+  debug = true;
   directionMap = {
   'orth': {
     'origin': {'x':  0, 'y':  0},
@@ -150,6 +151,7 @@ app.post('/move', (request, response) => {
     return validTiles.size;
   }
   
+  if(debug) {console.log("snake filtering");}
   board.snakes.forEach( snake => {
     ignoreList = ignoreList.concat(snake.body.slice(0, -1));
     localTiles = findLocalTiles(snake.body[0], directionMap['orth']);
@@ -167,6 +169,7 @@ app.post('/move', (request, response) => {
     }
   });
   
+  if(debug) {console.log("mood selection");}
   // mood logic
   avgFoodDistance = Math.round((board.width * board.height)/(foodList.length + preyList.length));
   if(preyList.length < 1  || player.health <= avgFoodDistance + 5) {
@@ -177,6 +180,7 @@ app.post('/move', (request, response) => {
     mood.hiding = true;
   }
 
+  if(debug) {console.log("target selection");}
   target = player.body[player.body.length - 1];
   if(mood.hungry && foodList.length > 0) {
     target = findClosestTarget(player.body[0], foodList);
@@ -201,8 +205,8 @@ app.post('/move', (request, response) => {
     }
   }
 
+  if(debug) {console.log("movement selection");}
   Object.keys(directionMap['orth']).forEach( opt => {
-    console.log(opt);
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
     
     if(coordinatesWithinBounds(nextTile) < 1) {
@@ -212,21 +216,18 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, ignoreList) > 0) {
       return;
     }
-    
-    console.log("invalid tile check");
+
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
     if(invalidTiles == 4) {
       return;
     }
-    
-    console.log("score region setup");
+
     scoreMap = Object.Assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
-    
-    console.log("score calculation");
+
     tileScore = scoreMap.keys().length;
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
