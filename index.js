@@ -204,6 +204,7 @@ app.post('/move', (request, response) => {
   preferredMoves = [];
   backupMoves = [];
   Object.keys(directionMap['orth']).forEach( opt => {
+    console.log(opt);
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
     tileScore = 0;
 
