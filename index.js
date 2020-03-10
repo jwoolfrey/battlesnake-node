@@ -36,7 +36,7 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-  debug = true;
+  debug = 2;
   directionMap = {
   'orth': {
     'origin': {'x':  0, 'y':  0},
@@ -151,7 +151,7 @@ app.post('/move', (request, response) => {
     return validTiles.size;
   }
   
-  if(debug) {console.log("snake filtering");}
+  if(debug > 1) {console.log("! snake filtering");}
   board.snakes.forEach( snake => {
     ignoreList = ignoreList.concat(snake.body.slice(0, -1));
     localTiles = findLocalTiles(snake.body[0], directionMap['orth']);
@@ -169,7 +169,7 @@ app.post('/move', (request, response) => {
     }
   });
   
-  if(debug) {console.log("mood selection");}
+  if(debug > 1) {console.log("! mood selection");}
   // mood logic
   avgFoodDistance = Math.round((board.width * board.height)/(foodList.length + preyList.length));
   if(preyList.length < 1  || player.health <= avgFoodDistance + 5) {
@@ -180,7 +180,7 @@ app.post('/move', (request, response) => {
     mood.hiding = true;
   }
 
-  if(debug) {console.log("target selection");}
+  if(debug) {console.log("! target selection");}
   target = player.body[player.body.length - 1];
   if(mood.hungry && foodList.length > 0) {
     target = findClosestTarget(player.body[0], foodList);
@@ -205,7 +205,8 @@ app.post('/move', (request, response) => {
     }
   }
 
-  if(debug) {console.log("movement selection");}
+  if(debug > 1) {console.log("! movement filtering");}
+  Object.keys(directionMap['orth']).forEach( opt => {console.log(opt)});
   Object.keys(directionMap['orth']).forEach( opt => {
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
     
@@ -247,12 +248,14 @@ app.post('/move', (request, response) => {
     }
   });
 
-  console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
-  console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
-  console.log(mood);
-  console.log("Fo:%d Pr:%d/%d Ig:%d", foodList.length, preyCount, board.snakes.length - 1, ignoreList.length);
-  console.log("Pl:%s Ta:%s", player.body[0], target);
-  console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
+  if(debug > 0) {
+    console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
+    console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
+    console.log(mood);
+    console.log("Fo:%d Pr:%d/%d Ig:%d", foodList.length, preyCount, board.snakes.length - 1, ignoreList.length);
+    console.log("Pl:%s Ta:%s", player.body[0], target);
+    console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
+  }
   
   // Response data
   const data = {
@@ -264,11 +267,13 @@ app.post('/move', (request, response) => {
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
-  console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
-  if(request.body.board.snakes[0].id == request.body.you.id) {
-    console.log("* We've won! *");
-  } else {
-    console.log("* We didn't make it... *");
+  if(debug > 0) {
+    console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
+    if(request.body.board.snakes[0].id == request.body.you.id) {
+        console.log("* We've won! *");
+    } else {
+        console.log("* We didn't make it... *");
+    }
   }
   return response.json({})
 })
