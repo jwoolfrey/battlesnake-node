@@ -139,7 +139,7 @@ app.post('/move', (request, response) => {
   });
   
   // mood logic
-  avgFoodDistance = ((board.width * board.height)/(foodList.length + preyList.length));
+  avgFoodDistance = Math.round((board.width * board.height)/(foodList.length + preyList.length));
   if(preyList.length < 1  || player.health <= avgFoodDistance + 5) {
     mood.hungry = true;
   } else if(preyList.length > 0) {
@@ -207,7 +207,7 @@ app.post('/move', (request, response) => {
   console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
   console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
   console.log(mood);
-  console.log("Fo:%d Pr:%d/%d Vo:%d", foodList.length, preyCount, preyList.length, voidList.length);
+  console.log("Fo:%d Pr:%d/%d Vo:%d", foodList.length, preyCount, board.snakes.length - 1, voidList.length);
   console.log("Pl:%s Ta:%s", player.body[0], target);
   console.log("Pr: ", preferredDirections);
   console.log("Mo: ", nextMove[0]);
@@ -222,6 +222,11 @@ app.post('/move', (request, response) => {
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
+  if(reques.body.you.health > 0) {
+    console.log("* We've won! *");
+  } else {
+    console.log("* We didn't make it... *");
+  }
   return response.json({})
 })
 
