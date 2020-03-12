@@ -1,3 +1,4 @@
+const priorityQueue = require('priority-q')
 const bodyParser = require('body-parser')
 const express = require('express')
 const logger = require('morgan')
@@ -59,6 +60,7 @@ app.post('/move', (request, response) => {
 
   foodList = board.food;
   preyList = [];
+  tailList = [];
   ignoreList = [];
   dangerList = [];
 
@@ -66,6 +68,10 @@ app.post('/move', (request, response) => {
 
   function addCoordinates(coord_a, coord_b) {
     return {'x': coord_a.x + coord_b.x, 'y': coord_a.y + coord_b.y};
+  }
+
+  function distanceToTarget(coord_a, coord_b) {
+    return Math.round(Math.hypot(Math.abs(coord_a.x - coord_b.x), Math.abs(coord_a.y - coord_b.y)));
   }
   
   function coordinatesWithinBounds (coordinates) {
@@ -129,7 +135,10 @@ app.post('/move', (request, response) => {
       if(coordinatesInList(candidate, ignoreList) > 0) {
         return;
       }
-      newDistance = Math.round(Math.hypot(Math.abs(candidate.x - source.x), Math.abs(candidate.y - source.y)));
+      if(coordinatesInList(candidate, dangerList) > 0) {
+        return;
+      }
+      newDistance = distanceToTarget(candidate, source);
       if(newDistance < shortestDistance){
         //check for obstruction?
         shortestDistance = newDistance;
@@ -139,21 +148,51 @@ app.post('/move', (request, response) => {
     return destination;
   }
 
-  function findVolumeSize (source, limit = 0) {
-    validTiles = new Set();
-    workingTiles = [];
-    localTiles = findLocalTiles(source, directionMap['orth']);
-    localTiles.forEach( tile => {
-        if(! coordinatesInList(tile, ignoreList)) {
-          // shrug
+  function pathToTarget(source, target) {
+    var compare = function (a,b) {
+      if(a.priority > b.priority) {return  1}
+      if(a.priority < b.priority) {return -1}
+      return 0;
+    }
+
+    path = {};
+    path[source] = null;
+    totalCost = {};
+    totalCost[source] = 0;
+
+    frontier = new priorityQueue([], compare);
+    frontier.enqueue({'coordinates': source, 'priority': 0});
+
+    while(frontier.length > 0) {
+      current = (frontier.dequeue()).coordinates;
+      if(sameCoordinates(current, target)) {
+        break;
+      }
+
+      (findLocalTiles(current, directionMap['orth'])).forEach( next => {
+        if(coordinatesInList(next, ignoreList) > 0) {
+          tileCost = 1000;
+        } else if(coordinatesInList(next, dangerList) > 0) {
+          tileCost = 5;
+        } else {
+          tileCost = 1;
         }
-    });
-    return validTiles.size;
+        cost = totalCost[current] + tileCost;
+        if(next in totalCost && totalCost[next] < cost) {
+          return;
+        }
+        totalCost[next] = cost;
+        frontier.enqueue({'coordinates': next, 'priority': cost + distanceToTarget(next, target)});
+        path[next] = current;
+      });
+    }
+    return path;
   }
   
   if(debug > 1) {console.log("! snake filtering");}
   board.snakes.forEach( snake => {
     ignoreList = ignoreList.concat(snake.body.slice(0, -1));
+    tailList.push(snake.body[snake.body.length - 1]);
     localTiles = findLocalTiles(snake.body[0], directionMap['orth']);
 
     if(snake.body.length < player.body.length) {
@@ -211,6 +250,7 @@ app.post('/move', (request, response) => {
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
     tileScore = 0;
     
+    // HARD: rejections
     if(coordinatesWithinBounds(nextTile) < 1) {
       return;
     }
@@ -219,13 +259,28 @@ app.post('/move', (request, response) => {
       return;
     }
     
+    /*
+    tailsFound = 0;
+    tailList.forEach( tail => {
+      path = pathToTarget(nextTile, tail);
+      if(tail in path.values()) {
+        tailsFound += 1;
+      }
+    });
+    if(tailsFound < 1) {
+      return;
+    }
+    */
+    /**/
     nextOptions = findLocalTiles(nextTile, directionMap['orth']);
     invalidTiles = coordinatesInList(nextOptions, ignoreList);
     invalidTiles += (4 - nextOptions.length);
     if(invalidTiles == 4) {
       return;
     }
+    /**/
     
+    // SOFT: scoring
     scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = addCoordinates(nextTile, directionMap['orth'][opt]);
     scoreRegion = findLocalTiles(scoreOrigin, scoreMap);
@@ -257,7 +312,7 @@ app.post('/move', (request, response) => {
     console.log(mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", foodList.length, preyCount, board.snakes.length - 1, ignoreList.length);
     console.log("Pl:%s Ta:%s", player.body[0], target);
-    console.log("Mv: %s Pr: %s Op:", nextMove, preferredDirections, nextMoves);
+    console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
   }
   
   // Response data
