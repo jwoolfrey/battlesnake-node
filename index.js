@@ -265,7 +265,7 @@ app.post('/move', (request, response) => {
 
     if(debug > 1) {console.log("! calling A* function");}
     playerTail = player.body[player.body.length - 1];
-    if(!(playerTail in Object.values(pathToTarget(nextTile, playerTail)))) {
+    if((Object.values(pathToTarget(nextTile, playerTail))).indexOf(playerTail) > -1) {
       return;
     }
     if(debug > 1) {console.log("! returning from A*");}
