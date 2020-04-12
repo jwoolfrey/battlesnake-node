@@ -186,6 +186,7 @@ app.post('/move', (request, response) => {
         path[next] = current;
       });
     }
+    console.log('IF:', path);
     return Object.assign({}, path);
   }
   
@@ -266,6 +267,7 @@ app.post('/move', (request, response) => {
 
     playerTail = player.body[player.body.length - 1];
     playerPath = Object.values(pathToTarget(nextTile, playerTail));
+    console.log('OF:',playerPath);
     if(playerPath.indexOf(playerTail) < 0) {
       //return;
     }
