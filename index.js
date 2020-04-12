@@ -264,8 +264,8 @@ app.post('/move', (request, response) => {
     }
 
     playerTail = player.body[player.body.length - 1];
-    path = Object.values(pathToTarget(nextTile, playerTail));
-    if(path.indexOf(playerTail) < 0) {
+    playerPath = [Object.values(pathToTarget(nextTile, playerTail))];
+    if(playerPath.indexOf(playerTail) < 0) {
       return;
     }
     
