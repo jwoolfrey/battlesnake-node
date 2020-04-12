@@ -170,8 +170,9 @@ app.post('/move', (request, response) => {
 
       (findLocalTiles(current, directionMap['orth'])).forEach( next => {
         if(coordinatesInList(next, ignoreList) > 0) {
-          tileCost = 1000;
-        } else if(coordinatesInList(next, dangerList) > 0) {
+          return;
+        }
+        if(coordinatesInList(next, dangerList) > 0) {
           tileCost = 5;
         } else {
           tileCost = 1;
@@ -185,7 +186,7 @@ app.post('/move', (request, response) => {
         path[next] = current;
       });
     }
-    return path;
+    return Object.assign({}, path);
   }
   
   if(debug > 1) {console.log("! snake filtering");}
@@ -264,7 +265,7 @@ app.post('/move', (request, response) => {
     }
 
     playerTail = player.body[player.body.length - 1];
-    playerPath = [Object.values(pathToTarget(nextTile, playerTail))];
+    playerPath = Object.values(pathToTarget(nextTile, playerTail));
     console.log(playerPath);
     if(playerPath.indexOf(playerTail) < 0) {
       return;
