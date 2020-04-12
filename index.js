@@ -60,7 +60,6 @@ app.post('/move', (request, response) => {
 
   foodList = board.food;
   preyList = [];
-  tailList = [];
   ignoreList = [];
   dangerList = [];
 
@@ -192,7 +191,6 @@ app.post('/move', (request, response) => {
   if(debug > 1) {console.log("! snake filtering");}
   board.snakes.forEach( snake => {
     ignoreList = ignoreList.concat(snake.body.slice(0, -1));
-    tailList.push(snake.body[snake.body.length - 1]);
     localTiles = findLocalTiles(snake.body[0], directionMap['orth']);
 
     if(snake.body.length < player.body.length) {
@@ -245,7 +243,12 @@ app.post('/move', (request, response) => {
   }
 
   if(debug > 1) {console.log("! movement filtering");}
-  nextMoves = [];
+  var compare = function (a,b) {
+    if(a.priority < b.priority) {return  1}
+    if(a.priority > b.priority) {return -1}
+    return 0;
+  }
+  nextMoves = new priorityQueue([], compare);
   Object.keys(directionMap['orth']).forEach( opt => {
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
     tileScore = 0;
@@ -258,27 +261,13 @@ app.post('/move', (request, response) => {
     if(coordinatesInList(nextTile, ignoreList) > 0) {
       return;
     }
-    
-    /*
-    tailsFound = 0;
-    tailList.forEach( tail => {
-      path = pathToTarget(nextTile, tail);
-      if(tail in path.values()) {
-        tailsFound += 1;
-      }
-    });
-    if(tailsFound < 1) {
+
+    playerTail = player.body[player.body.length - 1];
+    if(playerTail in pathToTarget(nextTile, playerTail).values()) {
+      tailFound = true;
+    } else {
       return;
     }
-    */
-    /**/
-    nextOptions = findLocalTiles(nextTile, directionMap['orth']);
-    invalidTiles = coordinatesInList(nextOptions, ignoreList);
-    invalidTiles += (4 - nextOptions.length);
-    if(invalidTiles == 4) {
-      return;
-    }
-    /**/
     
     // SOFT: scoring
     scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
@@ -295,16 +284,10 @@ app.post('/move', (request, response) => {
       tileScore += 1;
     }
 
-    nextMoves.push({'direction': opt, 'score': tileScore});
+    nextMoves.enqueue({'direction': opt, 'priority': tileScore});
   });
   
-  moveScore = 0;
-  nextMoves.forEach( option => {
-    if(option.score > moveScore) {
-      nextMove = option.direction;
-      moveScore = option.score;
-    }
-  });
+  nextMove = (nextMoves.dequeue()).direction;
   
   if(debug > 0) {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
