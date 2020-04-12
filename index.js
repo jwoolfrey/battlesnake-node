@@ -37,7 +37,7 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-  debug = 1;
+  debug = 2;
   directionMap = {
   'orth': {
     'origin': {'x':  0, 'y':  0},
@@ -248,6 +248,7 @@ app.post('/move', (request, response) => {
     if(a.priority > b.priority) {return -1}
     return 0;
   }
+  
   nextMoves = new priorityQueue([], compare);
   Object.keys(directionMap['orth']).forEach( opt => {
     nextTile = addCoordinates(player.body[0], directionMap['orth'][opt]);
@@ -263,9 +264,7 @@ app.post('/move', (request, response) => {
     }
 
     playerTail = player.body[player.body.length - 1];
-    if(playerTail in pathToTarget(nextTile, playerTail).values()) {
-      tailFound = true;
-    } else {
+    if(!(playerTail in (pathToTarget(nextTile, playerTail)).values())) {
       return;
     }
     
