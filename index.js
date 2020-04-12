@@ -263,10 +263,12 @@ app.post('/move', (request, response) => {
       return;
     }
 
+    if(debug > 1) {console.log("! calling A* function");}
     playerTail = player.body[player.body.length - 1];
-    if(!(playerTail in (pathToTarget(nextTile, playerTail)).values())) {
+    if(!(playerTail in Object.values(pathToTarget(nextTile, playerTail)))) {
       return;
     }
+    if(debug > 1) {console.log("! returning from A*");}
     
     // SOFT: scoring
     scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
