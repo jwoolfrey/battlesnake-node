@@ -184,7 +184,7 @@ app.post('/move', (request, response) => {
 
         totalCost[`${next.x},${next.y}`] = cost;
         frontier.enqueue({'coordinates': next, 'priority': cost + distanceToTarget(next, target)});
-        path[`${next.x},${next.y}`] = current;
+        path[`${next.x},${next.y}`] = `${current.x},${current.y}`;
       });
     }
     return Object.assign({}, path);
