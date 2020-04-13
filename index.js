@@ -268,7 +268,7 @@ app.post('/move', (request, response) => {
     playerTail = player.body[player.body.length - 1];
     playerPath = Object.values(pathToTarget(nextTile, playerTail));
     if(playerPath.indexOf(`${playerTail.x},${playerTail.y}`) < 0) {
-      return;
+      //return;
     }
     
     // SOFT: scoring
