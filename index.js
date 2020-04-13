@@ -153,11 +153,11 @@ app.post('/move', (request, response) => {
       if(a.priority < b.priority) {return -1}
       return 0;
     }
-
+    
     path = {};
-    path[source] = null;
+    path[`${source.x},${source.y}`] = null;
     totalCost = {};
-    totalCost[source] = 0;
+    totalCost[`${source.x},${source.y}`] = 0;
 
     frontier = new priorityQueue([], compare);
     frontier.enqueue({'coordinates': source, 'priority': 0});
@@ -177,14 +177,14 @@ app.post('/move', (request, response) => {
         } else {
           tileCost = 1;
         }
-        cost = totalCost[current] + tileCost;
-        if(next in totalCost && totalCost[next] < cost) {
+        cost = totalCost[`${current.x},${current.y}`] + tileCost;
+        if(`${next.x},${next.y}` in totalCost && totalCost[`${next.x},${next.y}`] < cost) {
           return;
         }
         console.log('IF:',current,next);
-        totalCost[next] = cost;
+        totalCost[`${next.x},${next.y}`] = cost;
         frontier.enqueue({'coordinates': next, 'priority': cost + distanceToTarget(next, target)});
-        path[next] = current;
+        path[`${next.x},${next.y}`] = current;
       });
     }
     console.log('IF:', path);
