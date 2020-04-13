@@ -181,6 +181,7 @@ app.post('/move', (request, response) => {
         if(next in totalCost && totalCost[next] < cost) {
           return;
         }
+        console.log('IF:',current,next);
         totalCost[next] = cost;
         frontier.enqueue({'coordinates': next, 'priority': cost + distanceToTarget(next, target)});
         path[next] = current;
