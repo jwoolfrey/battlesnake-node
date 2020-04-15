@@ -21,7 +21,7 @@ const debugLevels = Object.freeze({
   'Informational': 6,
   'Debug':         7
 });
-let debug = debugLevels.Notice;
+var debug = debugLevels.Notice;
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
@@ -191,10 +191,10 @@ app.post('/move', (request, response) => {
 
     for(var i = 0; i < list.length; i++) {
       if(Coordinate.withinList(list[i], tileSets['void']) > 0) {
-        return;
+        continue;
       }
       if(Coordinate.withinList(list[i], tileSets['dngr']) > 0) {
-        return;
+        continue;
       }
       var newDistance = Coordinate.lineDistance(list[i], source);
       if(newDistance < shortestDistance){
@@ -253,7 +253,6 @@ app.post('/move', (request, response) => {
     target = findClosestTarget(player.body[0], tileSets['prey']);
   }
 
-  debug = debugLevels.Informational
   if(debug >= debugLevels.Informational) {
     console.log("! direction selection");
   }
