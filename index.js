@@ -218,6 +218,9 @@ app.post('/move', (request, response) => {
     target = findClosestTarget(player.body[0], tileSets['prey']);
   }
 
+  if(debug >= debugLevels.Informational) {
+    console.log("! direction selection");
+  }
   var preferredDirections = [];
   if((target.x - player.body[0].x) != 0) {
     if((target.x - player.body[0].x) < 0) {
