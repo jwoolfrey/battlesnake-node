@@ -1,4 +1,3 @@
-const priorityQueue = require('priority-q')
 const bodyParser = require('body-parser')
 const express = require('express')
 const logger = require('morgan')
@@ -55,6 +54,7 @@ app.post('/move', (request, response) => {
   }};
 
   board = request.body.board;
+<<<<<<< HEAD
   challengers = request.body.board.snakes;
   player = request.body.you;
   player['mood'] = {
@@ -79,6 +79,23 @@ app.post('/move', (request, response) => {
 
     static add (coords_a, coords_b) {
       return {'x': coords_a.x + coords_b.x, 'y': coords_a.y + coords_b.y};
+=======
+
+  foodList = board.food;
+  preyList = [];
+  ignoreList = [];
+  dangerList = [];
+
+  preyCount = 0;
+
+  function addCoordinates(coord_a, coord_b) {
+    return {'x': coord_a.x + coord_b.x, 'y': coord_a.y + coord_b.y};
+  }
+  
+  function coordinatesWithinBounds (coordinates) {
+    if(! Array.isArray(coordinates)) {
+      coordinates = [coordinates];
+>>>>>>> parent of 5b7bc29... index.js & package.json
     }
 
     static equals (coords_a, coords_b) {
@@ -146,10 +163,14 @@ app.post('/move', (request, response) => {
       if(Coordinate.withinList(candidate, tileSets['void']) > 0) {
         return;
       }
+<<<<<<< HEAD
       if(Coordinate.withinList(candidate, tileSets['dngr']) > 0) {
         return;
       }
       newDistance = Coordinate.lineDistance(candidate, source);
+=======
+      newDistance = Math.round(Math.hypot(Math.abs(candidate.x - source.x), Math.abs(candidate.y - source.y)));
+>>>>>>> parent of 5b7bc29... index.js & package.json
       if(newDistance < shortestDistance){
         //check for obstruction?
         shortestDistance = newDistance;
@@ -159,6 +180,7 @@ app.post('/move', (request, response) => {
     return destination;
   }
 
+<<<<<<< HEAD
   function pathToTarget(source, target) {
     var compare = function (a,b) {
       if(a.priority > b.priority) {return  1}
@@ -206,6 +228,24 @@ app.post('/move', (request, response) => {
   for(i = 0; i < challengers.length; i++) {
     tileSets.void = tileSets.void.concat(challengers[i].body.slice(0, -1));
     localTiles = Coordinate.applyToList(challengers[i].body[0], directionMap['orth']);
+=======
+  function findVolumeSize (source, limit = 0) {
+    validTiles = new Set();
+    workingTiles = [];
+    localTiles = findLocalTiles(source, directionMap['orth']);
+    localTiles.forEach( tile => {
+        if(! coordinatesInList(tile, ignoreList)) {
+          // shrug
+        }
+    });
+    return validTiles.size;
+  }
+  
+  if(debug > 1) {console.log("! snake filtering");}
+  board.snakes.forEach( snake => {
+    ignoreList = ignoreList.concat(snake.body.slice(0, -1));
+    localTiles = findLocalTiles(snake.body[0], directionMap['orth']);
+>>>>>>> parent of 5b7bc29... index.js & package.json
 
     if(challengers[i].body.length < player.body.length) {
       preyCount += 1;
@@ -268,14 +308,19 @@ app.post('/move', (request, response) => {
     nextTile = Coordinate.add(player.body[0], directionMap['orth'][opt]);
     tileScore = 0;
     
+<<<<<<< HEAD
     // HARD: rejections
     if(Coordinate.withinBounds(nextTile) < 1) {
+=======
+    if(coordinatesWithinBounds(nextTile) < 1) {
+>>>>>>> parent of 5b7bc29... index.js & package.json
       return;
     }
     
     if(Coordinate.withinList(nextTile, tileSets['void']) > 0) {
       return;
     }
+<<<<<<< HEAD
 
     nextZone = Coordinate.applyToList(nextTile, directionMap['orth']);
     if(Coordinate.withinList(nextTile, tileSets['void']) = 4) {
@@ -289,8 +334,16 @@ app.post('/move', (request, response) => {
       //return;
     }
     */
+=======
     
-    // SOFT: scoring
+    nextOptions = findLocalTiles(nextTile, directionMap['orth']);
+    invalidTiles = coordinatesInList(nextOptions, ignoreList);
+    invalidTiles += (4 - nextOptions.length);
+    if(invalidTiles == 4) {
+      return;
+    }
+>>>>>>> parent of 5b7bc29... index.js & package.json
+    
     scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
     scoreOrigin = Coordinate.add(nextTile, directionMap['orth'][opt]);
     scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
@@ -316,7 +369,7 @@ app.post('/move', (request, response) => {
     console.log(mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", tileSets['food'].length, preyCount, board.snakes.length - 1, tileSets['void'].length);
     console.log("Pl:%s Ta:%s", player.body[0], target);
-    console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
+    console.log("Mv: %s Pr: %s Op:", nextMove, preferredDirections, nextMoves);
   }
   
   // Response data
