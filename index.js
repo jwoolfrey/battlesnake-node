@@ -21,7 +21,7 @@ const debugLevels = Object.freeze({
   'Informational': 6,
   'Debug':         7
 });
-let debug = debugLevels.Debug;
+let debug = debugLevels.Notice;
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
@@ -86,14 +86,23 @@ app.post('/move', (request, response) => {
 
   class Coordinate {
     static toString (coords) {
+      if(debug >= debugLevels.Debug) {
+        console.log("func: Coordinate.toString");
+      }
       return `(${coords.x}, ${coords.y})`;
     }
 
     static add (coords_a, coords_b) {
+      if(debug >= debugLevels.Debug) {
+        console.log("func: Coordinate.add");
+      }
       return {'x': coords_a.x + coords_b.x, 'y': coords_a.y + coords_b.y};
     }
 
     static equals (coords_a, coords_b) {
+      if(debug >= debugLevels.Debug) {
+        console.log("func: Coordinate.equals");
+      }
       if((coords_a.x - coords_b.x) != 0) {
         return false;
       }
@@ -104,12 +113,18 @@ app.post('/move', (request, response) => {
     }
 
     static lineDistance (coords_a, coords_b) {
+      if(debug >= debugLevels.Debug) {
+        console.log("func: Coordinate.lineDistance");
+      }
       var dist_x = Math.abs(coords_a.x - coords_b.x);
       var dist_y = Math.abs(coords_a.y - coords_b.y);
       return Math.round(Math.hypot(dist_x, dist_y));
     }
 
     static vectorFromCoords (src, dst) {
+      if(debug >= debugLevels.Debug) {
+        console.log("func: Coordinate.vectorFromCoords");
+      }
       var vector = {'x': 0, 'y': 0};
       vector.x = Math.min(Math.max(dst.x - src.x, 1), -1);
       vector.y = Math.min(Math.max(dst.y - src.y, 1), -1);
@@ -117,6 +132,9 @@ app.post('/move', (request, response) => {
     }
 
     static withinBounds (coords) {
+      if(debug >= debugLevels.Debug) {
+        console.log("func: Coordinate.withinBounds");
+      }
       if(! Array.isArray(coords)) {
         coords = [coords];
       }
@@ -133,6 +151,9 @@ app.post('/move', (request, response) => {
     }
 
     static withinList (coords, list) {
+      if(debug >= debugLevels.Debug) {
+        console.log("func: Coordinate.withinList");
+      }
       if(! Array.isArray(coords)) {
         coords = [coords];
       }
@@ -146,6 +167,9 @@ app.post('/move', (request, response) => {
     }
 
     static applyToList (coords, list) {
+      if(debug >= debugLevels.Debug) {
+        console.log("func: Coordinate.applyToList");
+      }
       var finalList = [];
       for(var i = 0; i < list.length; i++) {
         candidate = Coordinate.add(list[i], coords)
@@ -159,6 +183,9 @@ app.post('/move', (request, response) => {
   }
 
   function findClosestTarget (source, list) {
+    if(debug >= debugLevels.Debug) {
+      console.log("func: findClosestTarget");
+    }
     var shortestDistance = board.width * board.height;
     var destination = source;
 
@@ -215,6 +242,7 @@ app.post('/move', (request, response) => {
     player.mood['hiding'] = true;
   }
 
+  debug = debugLevels.Debug
   if(debug >= debugLevels.Informational) {
     console.log("! target selection");
   }
@@ -225,6 +253,7 @@ app.post('/move', (request, response) => {
     target = findClosestTarget(player.body[0], tileSets['prey']);
   }
 
+  debug = debugLevels.Informational
   if(debug >= debugLevels.Informational) {
     console.log("! direction selection");
   }
