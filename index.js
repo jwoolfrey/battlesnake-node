@@ -11,6 +11,18 @@ const {
   poweredByHandler
 } = require('./handlers.js')
 
+const debugLevels = Object.freeze({
+  'Emergency':     0,
+  'Alert':         1,
+  'Critical':      2,
+  'Error':         3,
+  'Warning':       4,
+  'Notice':        5,
+  'Informational': 6,
+  'Debug':         7
+});
+let debug = debugLevels.Debug;
+
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
 app.set('port', (process.env.PORT || 9001))
@@ -38,7 +50,6 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-  var debug = 2;
   var directionMap = {
   'orth': {
     'origin': {'x':  0, 'y':  0},
@@ -64,7 +75,7 @@ app.post('/move', (request, response) => {
     'hiding': false
   };
 
-  var tileSets = {
+  let tileSets = {
     'food': board.food,
     'prey': [],
     'void': [],
@@ -161,57 +172,15 @@ app.post('/move', (request, response) => {
     return destination;
   }
 
-  function pathToTarget(source, target) {
-    var compare = function (a,b) {
-      if(a.priority > b.priority) {return  1}
-      if(a.priority < b.priority) {return -1}
-      return 0;
-    }
-    
-    var path = {};
-    path[Coordinate.toString(source)] = null;
-    var totalCost = {};
-    totalCost[Coordinate.toString(source)] = 0;
-
-    var frontier = new priorityQueue([], compare);
-    frontier.enqueue({'coordinates': source, 'priority': 0});
-
-    while(frontier.length > 0) {
-      current = (frontier.dequeue()).coordinates;
-      if(Coordinate.equals(current, target)) {
-        break;
-      }
-
-      (Coordinate.applyToList(current, directionMap['orth'])).forEach( next => {
-        if(Coordinate.withinList(next, tileSets['void']) > 0) {
-          return;
-        }
-        var tileCost = 0;
-        if(Coordinate.withinList(next, tileSets['dngr']) > 0) {
-          tileCost = 5;
-        } else {
-          tileCost = 1;
-        }
-        var cost = totalCost[Coordinate.toString(current)] + tileCost;
-        if(Coordinate.toString(next) in totalCost && totalCost[Coordinate.toString(next)] < cost) {
-          return;
-        }
-
-        totalCost[Coordinate.toString(next)] = cost;
-        frontier.enqueue({'coordinates': next, 'priority': cost + Coordinate.lineDistance(next, target)});
-        path[Coordinate.toString(next)] = Coordinate.toString(current);
-      });
-    }
-    return Object.assign({}, path);
-  }
-
-  if(debug > 0) {
+  if(debug >= debugLevels.Notice) {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
   }
-  if(debug > 1) {console.log("! snake filtering");}
-  for(var i = 0; i < challengers.length; i++) {
+  if(debug >= debugLevels.Informational) {
+    console.log("! snake filtering");
+  }
+  for(let i = 0; i < challengers.length; i++) {
     tileSets.void = tileSets.void.concat(challengers[i].body.slice(0, -1));
-    var localTiles = Coordinate.applyToList(challengers[i].body[0], directionMap['orth']);
+    let localTiles = Coordinate.applyToList(challengers[i].body[0], directionMap['orth']);
 
     if(challengers[i].body.length < player.body.length) {
       preyCount += 1;
@@ -226,9 +195,11 @@ app.post('/move', (request, response) => {
     }
   }
   
-  if(debug > 1) {console.log("! mood selection");}
+  if(debug >= debugLevels.Informational) {
+    console.log("! mood selection");
+  }
   // mood logic
-  var avgFoodDistance = Math.round((board.width * board.height)/(tileSets['food'].length + tileSets['prey'].length));
+  let avgFoodDistance = Math.round((board.width * board.height)/(tileSets['food'].length + tileSets['prey'].length));
   if(tileSets['prey'].length < 1  || player.health <= avgFoodDistance + 5) {
     player.mood.hungry = true;
   } else if(tileSets['prey'].length > 0) {
@@ -237,8 +208,10 @@ app.post('/move', (request, response) => {
     player.mood.hiding = true;
   }
 
-  if(debug > 1) {console.log("! target selection");}
-  var target = player.body[player.body.length - 1];
+  if(debug >= debugLevels.Informational) {
+    console.log("! target selection");
+  }
+  let target = player.body[player.body.length - 1];
   if(player.mood.hungry && tileSets['food'].length > 0) {
     target = findClosestTarget(player.body[0], tileSets['food']);
   } else if(player.mood.hunting && tileSets['prey'].length > 0) {
@@ -262,7 +235,9 @@ app.post('/move', (request, response) => {
     }
   }
 
-  if(debug > 1) {console.log("! movement filtering");}
+  if(debug >= debugLevels.Informational) {
+    console.log("! movement filtering");
+  }
   var compare = function (a,b) {
     if(a.priority < b.priority) {return  1}
     if(a.priority > b.priority) {return -1}
@@ -271,7 +246,7 @@ app.post('/move', (request, response) => {
   
   var nextMoves = new priorityQueue([], compare);
   Object.keys(directionMap['orth']).forEach( opt => {
-    var nextTile = Coordinate.add(player.body[0], directionMap['orth'][opt]);
+    let nextTile = Coordinate.add(player.body[0], directionMap['orth'][opt]);
     var tileScore = 0;
     
     // HARD: rejections
@@ -287,23 +262,15 @@ app.post('/move', (request, response) => {
       return;
     }
 
-    var nextZone = Coordinate.applyToList(nextTile, directionMap['orth']);
-    if(Coordinate.withinList(nextTile, tileSets['void']) == 4) {
+    let nextZone = Coordinate.applyToList(nextTile, directionMap['orth']);
+    if(Coordinate.withinList(nextZone, tileSets['void']) == 4) {
       return;
     }
 
-    /*
-    playerTail = player.body[player.body.length - 1];
-    playerPath = Object.values(pathToTarget(nextTile, playerTail));
-    if(playerPath.indexOf(`${playerTail.x},${playerTail.y}`) < 0) {
-      //return;
-    }
-    */
-    
     // SOFT: scoring
-    var scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
-    var scoreOrigin = Coordinate.add(nextTile, directionMap['orth'][opt]);
-    var scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
+    let scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
+    let scoreOrigin = Coordinate.add(nextTile, directionMap['orth'][opt]);
+    let scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
 
     tileScore = Object.keys(scoreMap).length;
     tileScore += (-1 * (tileScore - scoreRegion.length));
@@ -318,13 +285,15 @@ app.post('/move', (request, response) => {
     nextMoves.enqueue({'direction': opt, 'priority': tileScore});
   });
   
-  var nextMove = (nextMoves.dequeue()).direction;
+  let nextMove = (nextMoves.dequeue()).direction;
   
-  if(debug > 0) {
+  if(debug >= debugLevels.Debug) {
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
     console.log(player.mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", tileSets['food'].length, preyCount, board.snakes.length - 1, tileSets['void'].length);
     console.log("Pl:%s Ta:%s", player.body[0], target);
+  }
+  if(debug >= debugLevels.Notice) {
     console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
   }
   
@@ -338,7 +307,7 @@ app.post('/move', (request, response) => {
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
-  if(debug > 0) {
+  if(debug >= debugLevels.Notice) {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
     if(request.body.board.snakes[0].id == request.body.you.id) {
         console.log("* We've won! *");
