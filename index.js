@@ -203,22 +203,22 @@ app.post('/move', (request, response) => {
   }
   
   if(debug > 1) {console.log("! snake filtering");}
-  challengers.forEach( snake => {
-    tileSets.void = tileSets.void.concat(snake.body.slice(0, -1));
-    localTiles = Coordinate.applyToList(snake.body[0], directionMap['orth']);
+  for(i = 0; i < challengers.length; i++) {
+    tileSets.void = tileSets.void.concat(challengers[i].body.slice(0, -1));
+    localTiles = Coordinate.applyToList(challengers[i].body[0], directionMap['orth']);
 
-    if(snake.body.length < player.body.length) {
+    if(challengers[i].body.length < player.body.length) {
       preyCount += 1;
       tileSets.prey = (tileSets.prey).concat(localTiles);
     } else {
-      if(snake.id != player.id) {
+      if(challengers[i].id != player.id) {
         tileSets.dngr = (tileSets.dngr).concat(localTiles);
       }
     }
     if(Coordinate.withinList(localTiles, tileSets.food) > 0) {
-      (tileSets.void).push(snake.body[snake.body.length - 1]);
+      (tileSets.void).push(challengers[i].body[challengers[i].body.length - 1]);
     }
-  });
+  }
   
   if(debug > 1) {console.log("! mood selection");}
   // mood logic
