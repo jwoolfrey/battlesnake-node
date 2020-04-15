@@ -54,23 +54,23 @@ app.post('/move', (request, response) => {
     'up-left'   : {'x': -1, 'y': -1}
   }};
 
-  var board = request.body.board;
-  var challengers = request.body.board.snakes;
-  var player = request.body.you;
+  board = request.body.board;
+  challengers = request.body.board.snakes;
+  player = request.body.you;
   player['mood'] = {
     'hungry': false,
     'hunting': false,
     'hiding': false
   };
 
-  var tileSets = {
+  tileSets = {
     'food': board.food,
     'prey': [],
     'void': [],
     'dngr': [],
   };
 
-  var preyCount = 0;
+  preyCount = 0;
 
   class Coordinate {
     static toString (coords) {
