@@ -158,9 +158,11 @@ app.post('/move', (request, response) => {
         coords = [coords];
       }
       var count = 0;
-      for(var i = 0; i < coords.length; i++) {
-        if((list.findIndex( e => this.equals(coords[i], element))) >= 0) {
-          count += 1;
+      if(Array.isArray(list)) {
+        for(var i = 0; i < coords.length; i++) {
+          if((list.findIndex( e => this.equals(coords[i], element))) >= 0) {
+            count += 1;
+          }
         }
       }
       return count;
