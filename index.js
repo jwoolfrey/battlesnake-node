@@ -37,7 +37,7 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
-  var debug = 1;
+  var debug = 2;
   var directionMap = {
   'orth': {
     'origin': {'x':  0, 'y':  0},
@@ -281,7 +281,7 @@ app.post('/move', (request, response) => {
     if(Coordinate.withinList(nextTile, tileSets['void']) = 4) {
       return;
     }
-    
+
     /*
     playerTail = player.body[player.body.length - 1];
     playerPath = Object.values(pathToTarget(nextTile, playerTail));
