@@ -70,7 +70,7 @@ app.post('/move', (request, response) => {
     'dngr': [],
   };
 
-  preyCount = 0;
+  var preyCount = 0;
 
   class Coordinate {
     static toString (coords) {
@@ -204,19 +204,19 @@ app.post('/move', (request, response) => {
   
   if(debug > 1) {console.log("! snake filtering");}
   challengers.forEach( snake => {
-    tileSets['void'] = tileSets['void'].concat(snake.body.slice(0, -1));
+    tileSets.void = tileSets.void.concat(snake.body.slice(0, -1));
     localTiles = Coordinate.applyToList(snake.body[0], directionMap['orth']);
 
     if(snake.body.length < player.body.length) {
       preyCount += 1;
-      tileSets['prey'] = tileSets['prey'].concat(localTiles);
+      tileSets.prey = (tileSets.prey).concat(localTiles);
     } else {
       if(snake.id != player.id) {
-        tileSets['dngr'] = tileSets['dngr'].concat(localTiles);
+        tileSets.dngr = (tileSets.dngr).concat(localTiles);
       }
     }
-    if(Coordinate.withinList(localTiles, tileSets['food']) > 0) {
-      tileSets['void'].push(snake.body[snake.body.length - 1]);
+    if(Coordinate.withinList(localTiles, tileSets.food) > 0) {
+      (tileSets.void).push(snake.body[snake.body.length - 1]);
     }
   });
   
