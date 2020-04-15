@@ -150,7 +150,7 @@ app.post('/move', (request, response) => {
       if(Coordinate.withinList(candidate, tileSets['dngr']) > 0) {
         return;
       }
-      newDistance = Coordinate.lineDistance(candidate, source);
+      var newDistance = Coordinate.lineDistance(candidate, source);
       if(newDistance < shortestDistance){
         //check for obstruction?
         shortestDistance = newDistance;
@@ -274,7 +274,7 @@ app.post('/move', (request, response) => {
     if(opt == 'origin') {
       return;
     }
-    
+
     if(Coordinate.withinBounds(nextTile) < 1) {
       return;
     }
