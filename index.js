@@ -1,3 +1,4 @@
+"use strict";
 const priorityQueue = require('priority-q')
 const bodyParser = require('body-parser')
 const express = require('express')
@@ -208,9 +209,9 @@ app.post('/move', (request, response) => {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
   }
   if(debug > 1) {console.log("! snake filtering");}
-  for(i = 0; i < challengers.length; i++) {
+  for(var i = 0; i < challengers.length; i++) {
     tileSets.void = tileSets.void.concat(challengers[i].body.slice(0, -1));
-    localTiles = Coordinate.applyToList(challengers[i].body[0], directionMap['orth']);
+    var localTiles = Coordinate.applyToList(challengers[i].body[0], directionMap['orth']);
 
     if(challengers[i].body.length < player.body.length) {
       preyCount += 1;
@@ -227,7 +228,7 @@ app.post('/move', (request, response) => {
   
   if(debug > 1) {console.log("! mood selection");}
   // mood logic
-  avgFoodDistance = Math.round((board.width * board.height)/(tileSets['food'].length + tileSets['prey'].length));
+  var avgFoodDistance = Math.round((board.width * board.height)/(tileSets['food'].length + tileSets['prey'].length));
   if(tileSets['prey'].length < 1  || player.health <= avgFoodDistance + 5) {
     player.mood.hungry = true;
   } else if(tileSets['prey'].length > 0) {
@@ -268,10 +269,10 @@ app.post('/move', (request, response) => {
     return 0;
   }
   
-  nextMoves = new priorityQueue([], compare);
+  var nextMoves = new priorityQueue([], compare);
   Object.keys(directionMap['orth']).forEach( opt => {
-    nextTile = Coordinate.add(player.body[0], directionMap['orth'][opt]);
-    tileScore = 0;
+    var nextTile = Coordinate.add(player.body[0], directionMap['orth'][opt]);
+    var tileScore = 0;
     
     // HARD: rejections
     if(opt == 'origin') {
@@ -286,7 +287,7 @@ app.post('/move', (request, response) => {
       return;
     }
 
-    nextZone = Coordinate.applyToList(nextTile, directionMap['orth']);
+    var nextZone = Coordinate.applyToList(nextTile, directionMap['orth']);
     if(Coordinate.withinList(nextTile, tileSets['void']) == 4) {
       return;
     }
@@ -300,9 +301,9 @@ app.post('/move', (request, response) => {
     */
     
     // SOFT: scoring
-    scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
-    scoreOrigin = Coordinate.add(nextTile, directionMap['orth'][opt]);
-    scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
+    var scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
+    var scoreOrigin = Coordinate.add(nextTile, directionMap['orth'][opt]);
+    var scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
 
     tileScore = Object.keys(scoreMap).length;
     tileScore += (-1 * (tileScore - scoreRegion.length));
@@ -317,7 +318,7 @@ app.post('/move', (request, response) => {
     nextMoves.enqueue({'direction': opt, 'priority': tileScore});
   });
   
-  nextMove = (nextMoves.dequeue()).direction;
+  var nextMove = (nextMoves.dequeue()).direction;
   
   if(debug > 0) {
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
