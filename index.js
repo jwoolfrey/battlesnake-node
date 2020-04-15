@@ -160,7 +160,7 @@ app.post('/move', (request, response) => {
       var count = 0;
       if(Array.isArray(list)) {
         for(var i = 0; i < coords.length; i++) {
-          if((list.findIndex( e => this.equals(coords[i], element))) >= 0) {
+          if((list.findIndex( element => this.equals(coords[i], element))) >= 0) {
             count += 1;
           }
         }
