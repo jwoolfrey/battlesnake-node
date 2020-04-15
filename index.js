@@ -144,20 +144,20 @@ app.post('/move', (request, response) => {
     var shortestDistance = board.width * board.height;
     var destination = source;
 
-    list.forEach( candidate => {
-      if(Coordinate.withinList(candidate, tileSets['void']) > 0) {
+    for(var i = 0; i < list.length; i++) {
+      if(Coordinate.withinList(list[i], tileSets['void']) > 0) {
         return;
       }
-      if(Coordinate.withinList(candidate, tileSets['dngr']) > 0) {
+      if(Coordinate.withinList(list[i], tileSets['dngr']) > 0) {
         return;
       }
-      var newDistance = Coordinate.lineDistance(candidate, source);
+      var newDistance = Coordinate.lineDistance(list[i], source);
       if(newDistance < shortestDistance){
         //check for obstruction?
         shortestDistance = newDistance;
-        destination = candidate;
+        destination = list[i];
       }
-    });
+    }
     return destination;
   }
 
