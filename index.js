@@ -69,10 +69,10 @@ app.post('/move', (request, response) => {
   var board = request.body.board;
   var challengers = request.body.board.snakes;
   var player = request.body.you;
-  player['mood'] = {
-    'hungry': false,
+  player.mood = {
+    'hungry':  false,
     'hunting': false,
-    'hiding': false
+    'hiding':  false
   };
 
   let tileSets = {
@@ -107,6 +107,13 @@ app.post('/move', (request, response) => {
       var dist_x = Math.abs(coords_a.x - coords_b.x);
       var dist_y = Math.abs(coords_a.y - coords_b.y);
       return Math.round(Math.hypot(dist_x, dist_y));
+    }
+
+    static vectorFromCoords (src, dst) {
+      var vector = {'x': 0, 'y': 0};
+      vector.x = Math.min(Math.max(dst.x - src.x, 1), -1);
+      vector.y = Math.min(Math.max(dst.y - src.y, 1), -1);
+      return Object.assign({}, vector);
     }
 
     static withinBounds (coords) {
@@ -179,19 +186,19 @@ app.post('/move', (request, response) => {
     console.log("! snake filtering");
   }
   for(let i = 0; i < challengers.length; i++) {
-    tileSets.void = tileSets.void.concat(challengers[i].body.slice(0, -1));
+    tileSets['void'] = tileSets['void'].concat(challengers[i].body.slice(0, -1));
     let localTiles = Coordinate.applyToList(challengers[i].body[0], directionMap['orth']);
 
     if(challengers[i].body.length < player.body.length) {
       preyCount += 1;
-      tileSets.prey = (tileSets.prey).concat(localTiles);
+      tileSets['prey'] = (tileSets['prey']).concat(localTiles);
     } else {
       if(challengers[i].id != player.id) {
-        tileSets.dngr = (tileSets.dngr).concat(localTiles);
+        tileSets['dngr'] = (tileSets['dngr']).concat(localTiles);
       }
     }
-    if(Coordinate.withinList(localTiles, tileSets.food) > 0) {
-      (tileSets.void).push(challengers[i].body[challengers[i].body.length - 1]);
+    if(Coordinate.withinList(localTiles, tileSets['food']) > 0) {
+      (tileSets['void']).push(challengers[i].body[challengers[i].body.length - 1]);
     }
   }
   
@@ -201,20 +208,20 @@ app.post('/move', (request, response) => {
   // mood logic
   let avgFoodDistance = Math.round((board.width * board.height)/(tileSets['food'].length + tileSets['prey'].length));
   if(tileSets['prey'].length < 1  || player.health <= avgFoodDistance + 5) {
-    player.mood.hungry = true;
+    player.mood['hungry'] = true;
   } else if(tileSets['prey'].length > 0) {
-    player.mood.hunting = true;
+    player.mood['hunting'] = true;
   } else {
-    player.mood.hiding = true;
+    player.mood['hiding'] = true;
   }
 
   if(debug >= debugLevels.Informational) {
     console.log("! target selection");
   }
   let target = player.body[player.body.length - 1];
-  if(player.mood.hungry && tileSets['food'].length > 0) {
+  if(player.mood['hungry'] && tileSets['food'].length > 0) {
     target = findClosestTarget(player.body[0], tileSets['food']);
-  } else if(player.mood.hunting && tileSets['prey'].length > 0) {
+  } else if(player.mood['hunting'] && tileSets['prey'].length > 0) {
     target = findClosestTarget(player.body[0], tileSets['prey']);
   }
 
@@ -222,20 +229,18 @@ app.post('/move', (request, response) => {
     console.log("! direction selection");
   }
   var preferredDirections = [];
-  if((target.x - player.body[0].x) != 0) {
-    if((target.x - player.body[0].x) < 0) {
-      preferredDirections.push('left');
-    } else {
-      preferredDirections.push('right');
-    }
+  let targetVector = Coordinate.vectorFromCoords(player.body[0], target);
+
+  if(targetVector.x < 0) {
+    preferredDirections.push('left');
+  } else if(targetVector.x > 0) {
+    preferredDirections.push('right');
   }
 
-  if((target.y - player.body[0].y) != 0) {
-    if((target.y - player.body[0].y) < 0) {
-      preferredDirections.push('up');
-    } else {
-      preferredDirections.push('down');
-    }
+  if(targetVector.y < 0) {
+    preferredDirections.push('down');
+  } else if(targetVector.y > 0) {
+    preferredDirections.push('up');
   }
 
   if(debug >= debugLevels.Informational) {
