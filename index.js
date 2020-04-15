@@ -203,7 +203,10 @@ app.post('/move', (request, response) => {
     }
     return Object.assign({}, path);
   }
-  
+
+  if(debug > 0) {
+    console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
+  }
   if(debug > 1) {console.log("! snake filtering");}
   for(i = 0; i < challengers.length; i++) {
     tileSets.void = tileSets.void.concat(challengers[i].body.slice(0, -1));
@@ -234,14 +237,14 @@ app.post('/move', (request, response) => {
   }
 
   if(debug > 1) {console.log("! target selection");}
-  target = player.body[player.body.length - 1];
+  var target = player.body[player.body.length - 1];
   if(player.mood.hungry && tileSets['food'].length > 0) {
     target = findClosestTarget(player.body[0], tileSets['food']);
   } else if(player.mood.hunting && tileSets['prey'].length > 0) {
     target = findClosestTarget(player.body[0], tileSets['prey']);
   }
 
-  preferredDirections = [];
+  var preferredDirections = [];
   if((target.x - player.body[0].x) != 0) {
     if((target.x - player.body[0].x) < 0) {
       preferredDirections.push('left');
@@ -317,7 +320,6 @@ app.post('/move', (request, response) => {
   nextMove = (nextMoves.dequeue()).direction;
   
   if(debug > 0) {
-    console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
     console.log(player.mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", tileSets['food'].length, preyCount, board.snakes.length - 1, tileSets['void'].length);
