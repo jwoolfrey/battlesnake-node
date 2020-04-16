@@ -10,7 +10,7 @@ const {
   poweredByHandler
 } = require('./handlers.js')
 
-const debugLevels = Object.freeze({
+const debugLevels = {
   'Emergency':     0,
   'Alert':         1,
   'Critical':      2,
@@ -19,7 +19,7 @@ const debugLevels = Object.freeze({
   'Notice':        5,
   'Informational': 6,
   'Debug':         7
-});
+};
 var debug = debugLevels.Notice;
 
 // For deployment to Heroku, the port needs to be set using ENV, so
