@@ -126,8 +126,8 @@ app.post('/move', (request, response) => {
         console.log("func: Coordinate.vectorFromCoords");
       }
       var vector = {'x': 0, 'y': 0};
-      vector.x = Math.min(Math.max(dst.x - src.x, 1), -1);
-      vector.y = Math.min(Math.max(dst.y - src.y, 1), -1);
+      vector.x = Math.min(Math.max(dst.x - src.x, -1), 1);
+      vector.y = Math.min(Math.max(dst.y - src.y, -1), 1);
       return Object.assign({}, vector);
     }
 
@@ -152,7 +152,7 @@ app.post('/move', (request, response) => {
 
     static withinList (coords, list) {
       if(debug >= debugLevels.Debug) {
-        console.log("func(enter): Coordinate.withinList");
+        console.log("func: Coordinate.withinList");
       }
       if(! Array.isArray(coords)) {
         coords = [coords];
@@ -164,9 +164,6 @@ app.post('/move', (request, response) => {
             count += 1;
           }
         }
-      }
-      if(debug >= debugLevels.Debug) {
-        console.log("func(exit): Coordinate.withinList");
       }
       return count;
     }
@@ -189,7 +186,7 @@ app.post('/move', (request, response) => {
 
   function findClosestTarget (source, list) {
     if(debug >= debugLevels.Debug) {
-      console.log("func(enter): findClosestTarget");
+      console.log("func: findClosestTarget");
     }
     var shortestDistance = board.width * board.height;
     var destination = source;
@@ -207,9 +204,6 @@ app.post('/move', (request, response) => {
         shortestDistance = newDistance;
         destination = list[i];
       }
-    }
-    if(debug >= debugLevels.Debug) {
-      console.log("func(exit): findClosestTarget");
     }
     return destination;
   }
@@ -250,7 +244,6 @@ app.post('/move', (request, response) => {
     player.mood['hiding'] = true;
   }
 
-  debug = debugLevels.Debug
   if(debug >= debugLevels.Informational) {
     console.log("! target selection");
     console.log(tileSets['food']);
