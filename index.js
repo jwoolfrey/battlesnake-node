@@ -310,9 +310,9 @@ app.post('/move', (request, response) => {
       tileScore += 1;
     }
 
-    nextMoves.enqueue({'direction': opt, 'priority': tileScore});
+    nextMoves.enqueue({'direction': `${opt}`, 'priority': tileScore});
   }
-  
+
   console.log(nextMoves);
   let nextMove = (nextMoves.dequeue()).direction;
   
