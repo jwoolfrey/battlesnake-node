@@ -21,7 +21,7 @@ const debugLevels = Object.freeze({
   'Informational': 6,
   'Debug':         7
 });
-var debug = debugLevels.Informational;
+var debug = debugLevels.Notice;
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
