@@ -268,9 +268,9 @@ app.post('/move', (request, response) => {
   }
 
   if(targetVector.y < 0) {
-    preferredDirections.push('down');
-  } else if(targetVector.y > 0) {
     preferredDirections.push('up');
+  } else if(targetVector.y > 0) {
+    preferredDirections.push('down');
   }
 
   if(debug >= debugLevels.Informational) {
