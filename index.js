@@ -21,7 +21,7 @@ const debugLevels = Object.freeze({
   'Informational': 6,
   'Debug':         7
 });
-var debug = debugLevels.Notice;
+var debug = debugLevels.Informational;
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
@@ -138,7 +138,8 @@ app.post('/move', (request, response) => {
       if(! Array.isArray(coords)) {
         coords = [coords];
       }
-      for(var count = 0,i = 0; i < coords.length; i++) {
+      var count = 0;
+      for(var i = 0; i < coords.length; i++) {
         if(coords.x < 0 || coords.x > board.width - 1) {
           continue;
         }
@@ -211,7 +212,7 @@ app.post('/move', (request, response) => {
   if(debug >= debugLevels.Notice) {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
   }
-  if(debug >= debugLevels.Informational) {
+  if(debug >= debugLevels.Debug) {
     console.log("! snake filtering");
   }
   for(let i = 0; i < challengers.length; i++) {
@@ -231,7 +232,7 @@ app.post('/move', (request, response) => {
     }
   }
   
-  if(debug >= debugLevels.Informational) {
+  if(debug >= debugLevels.Debug) {
     console.log("! mood selection");
   }
   // mood logic
@@ -244,7 +245,7 @@ app.post('/move', (request, response) => {
     player.mood['hiding'] = true;
   }
 
-  if(debug >= debugLevels.Informational) {
+  if(debug >= debugLevels.Debug) {
     console.log("! target selection");
     console.log(tileSets['food']);
   }
@@ -255,7 +256,7 @@ app.post('/move', (request, response) => {
     target = findClosestTarget(player.body[0], tileSets['prey']);
   }
 
-  if(debug >= debugLevels.Informational) {
+  if(debug >= debugLevels.Debug) {
     console.log("! direction selection");
   }
   var preferredDirections = [];
@@ -273,7 +274,7 @@ app.post('/move', (request, response) => {
     preferredDirections.push('down');
   }
 
-  if(debug >= debugLevels.Informational) {
+  if(debug >= debugLevels.Debug) {
     console.log("! movement filtering");
   }
   var compare = function (a,b) {
@@ -283,15 +284,14 @@ app.post('/move', (request, response) => {
   }
   
   var nextMoves = new priorityQueue([], compare);
-  Object.keys(directionMap['orth']).forEach( opt => {
+  var validMoves = ['up','right','down','left'];
+  
+  for(var i = 0; i < validMoves.length; i++) {
+    let opt = validMoves[i];
     let nextTile = Coordinate.add(player.body[0], directionMap['orth'][opt]);
     var tileScore = 0;
     
     // HARD: rejections
-    if(opt == 'origin') {
-      return;
-    }
-
     if(Coordinate.withinBounds(nextTile) < 1) {
       return;
     }
@@ -301,7 +301,7 @@ app.post('/move', (request, response) => {
     }
 
     let nextZone = Coordinate.applyToList(nextTile, directionMap['orth']);
-    if(Coordinate.withinList(nextZone, tileSets['void']) == 4) {
+    if(Coordinate.withinList(nextZone, tileSets['void']) >= 4) {
       return;
     }
 
@@ -321,11 +321,11 @@ app.post('/move', (request, response) => {
     }
 
     nextMoves.enqueue({'direction': opt, 'priority': tileScore});
-  });
+  }
   
   let nextMove = (nextMoves.dequeue()).direction;
   
-  if(debug >= debugLevels.Debug) {
+  if(debug >= debugLevels.Informational) {
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
     console.log(player.mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", tileSets['food'].length, preyCount, board.snakes.length - 1, tileSets['void'].length);
