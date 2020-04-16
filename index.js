@@ -67,7 +67,7 @@ app.post('/move', (request, response) => {
   }};
 
   var board = request.body.board;
-  var challengers = request.body.board.snakes;
+  var challengers = board.snakes;
   var player = request.body.you;
   player.mood = {
     'hungry':  false,
@@ -221,14 +221,14 @@ app.post('/move', (request, response) => {
 
     if(challengers[i].body.length < player.body.length) {
       preyCount += 1;
-      tileSets['prey'] = (tileSets['prey']).concat(localTiles);
+      tileSets['prey'] = tileSets['prey'].concat(localTiles);
     } else {
       if(challengers[i].id != player.id) {
-        tileSets['dngr'] = (tileSets['dngr']).concat(localTiles);
+        tileSets['dngr'] = tileSets['dngr'].concat(localTiles);
       }
     }
     if(Coordinate.withinList(localTiles, tileSets['food']) > 0) {
-      (tileSets['void']).push(challengers[i].body[challengers[i].body.length - 1]);
+      tileSets['void'].push(challengers[i].body[challengers[i].body.length - 1]);
     }
   }
   
@@ -277,13 +277,8 @@ app.post('/move', (request, response) => {
   if(debug >= debugLevels.Debug) {
     console.log("! movement filtering");
   }
-  var compare = function (a,b) {
-    if(a.priority > b.priority) {return  1}
-    if(a.priority < b.priority) {return -1}
-    return 0;
-  }
   
-  var nextMoves = new priorityQueue([], compare);
+  var nextMoves = [];
   var validMoves = ['up','right','down','left'];
   
   for(var i = 0; i < validMoves.length; i++) {
@@ -310,17 +305,24 @@ app.post('/move', (request, response) => {
       tileScore += 1;
     }
 
-    nextMoves.enqueue({'direction': `${opt}`, 'priority': tileScore});
+    nextMoves.push({'direction': `${opt}`, 'priority': tileScore});
   }
 
-  console.log(nextMoves);
-  let nextMove = (nextMoves.dequeue()).direction;
+  var nextMove = 'up';
+  var moveScore = 0
+  for(var i = 0; i < nextMoves.length; i++) {
+    if(nextMoves[i].priority > moveScore){
+      moveScore = nextMoves[i].priority;
+      nextMove = nextMoves[i].direction;
+    }
+  }
   
   if(debug >= debugLevels.Informational) {
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
     console.log(player.mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", tileSets['food'].length, preyCount, board.snakes.length - 1, tileSets['void'].length);
     console.log("Pl:%s Ta:%s", player.body[0], target);
+    console.log(tileSets);
   }
   if(debug >= debugLevels.Notice) {
     console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
