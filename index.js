@@ -1,4 +1,3 @@
-"use strict";
 const priorityQueue = require('priority-q')
 const bodyParser = require('body-parser')
 const express = require('express')
