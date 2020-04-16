@@ -306,16 +306,6 @@ app.post('/move', (request, response) => {
     }
 
     // SOFT: scoring
-    let scoreMap = Object.assign(directionMap['orth'], directionMap['diag']);
-    let scoreOrigin = Coordinate.add(nextTile, directionMap['orth'][opt]);
-    let scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
-
-    tileScore = Object.keys(scoreMap).length;
-    tileScore += (-1 * (tileScore - scoreRegion.length));
-    tileScore += (-1 * Coordinate.withinList(scoreRegion, tileSets['void']));
-    tileScore += (-1 * Coordinate.withinList(scoreRegion, tileSets['dngr']));
-    tileScore += ( 1 * Coordinate.withinList(scoreRegion, tileSets['food']));
-
     if(preferredDirections.indexOf(opt) >= 0) {
       tileScore += 1;
     }
@@ -323,6 +313,7 @@ app.post('/move', (request, response) => {
     nextMoves.enqueue({'direction': opt, 'priority': tileScore});
   }
   
+  console.log(nextMoves);
   let nextMove = (nextMoves.dequeue()).direction;
   
   if(debug >= debugLevels.Informational) {
