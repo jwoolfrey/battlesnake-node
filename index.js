@@ -20,7 +20,7 @@ const debugLevels = {
   'Informational': 6,
   'Debug':         7
 };
-var debug = debugLevels.Debug;
+var debug = debugLevels.Notice;
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
@@ -319,7 +319,7 @@ app.post('/move', (request, response) => {
   var nextMove = 'up';
   var moveScore = 0
   for(var i = 0; i < nextMoves.length; i++) {
-    if(nextMoves[i].priority > moveScore){
+    if(nextMoves[i].priority >= moveScore){
       moveScore = nextMoves[i].priority;
       nextMove = nextMoves[i].direction;
     }
