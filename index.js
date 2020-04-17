@@ -282,6 +282,9 @@ app.post('/move', (request, response) => {
   
   for(var i = 0; i < validMoves.length; i++) {
     let opt = validMoves[i];
+    if(debug >= debugLevels.Debug) {
+      console.log(opt);
+    }
     let nextTile = Coordinate.add(player.body[0], directionMap['orth'][opt]);
     var tileScore = 0;
     
@@ -303,7 +306,9 @@ app.post('/move', (request, response) => {
     if(movePreference.indexOf(opt) >= 0) {
       tileScore += 1;
     }
-
+    if(debug >= debugLevels.Debug) {
+      console.log("Added: %s", opt);
+    }
     nextMoves.push({'direction': `${opt}`, 'priority': tileScore});
   }
 
@@ -328,7 +333,7 @@ app.post('/move', (request, response) => {
     console.log(tileSets);
   }
   if(debug >= debugLevels.Notice) {
-    console.log("Mv: %s Pr: %s Op: %s", nextMove, movePreference, nextMoves);
+    console.log("Mv: %s Pr: %s Op: %d", nextMove, movePreference, nextMoves.length);
   }
   
   // Response data
