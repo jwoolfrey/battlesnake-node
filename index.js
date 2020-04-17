@@ -290,16 +290,16 @@ app.post('/move', (request, response) => {
     
     // HARD: rejections
     if(Coordinate.withinBounds(nextTile) < 1) {
-      return;
+      continue;
     }
     
     if(Coordinate.withinList(nextTile, tileSets['void']) > 0) {
-      return;
+      continue;
     }
 
     let nextZone = Coordinate.applyToList(nextTile, directionMap['orth']);
     if(Coordinate.withinList(nextZone, tileSets['void']) >= 4) {
-      return;
+      continue;
     }
 
     // SOFT: scoring
