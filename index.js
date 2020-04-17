@@ -258,19 +258,19 @@ app.post('/move', (request, response) => {
   if(debug >= debugLevels.Debug) {
     console.log("! direction selection");
   }
-  var preferredDirections = [];
+  var movePreference = [];
   let targetVector = Coordinate.vectorFromCoords(player.body[0], target);
 
   if(targetVector.x < 0) {
-    preferredDirections.push('left');
+    movePreference.push('left');
   } else if(targetVector.x > 0) {
-    preferredDirections.push('right');
+    movePreference.push('right');
   }
 
   if(targetVector.y < 0) {
-    preferredDirections.push('up');
+    movePreference.push('up');
   } else if(targetVector.y > 0) {
-    preferredDirections.push('down');
+    movePreference.push('down');
   }
 
   if(debug >= debugLevels.Debug) {
@@ -300,11 +300,15 @@ app.post('/move', (request, response) => {
     }
 
     // SOFT: scoring
-    if(preferredDirections.indexOf(opt) >= 0) {
+    if(movePreference.indexOf(opt) >= 0) {
       tileScore += 1;
     }
 
     nextMoves.push({'direction': `${opt}`, 'priority': tileScore});
+  }
+
+  if(debug >= debugLevels.Debug) {
+    console.log("! movement selection");
   }
 
   var nextMove = 'up';
@@ -324,7 +328,7 @@ app.post('/move', (request, response) => {
     console.log(tileSets);
   }
   if(debug >= debugLevels.Notice) {
-    console.log("Mv: %s Pr: %s", nextMove, preferredDirections);
+    console.log("Mv: %s Pr: %s Op: %s", nextMove, movePreference, nextMoves);
   }
   
   // Response data
