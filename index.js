@@ -174,7 +174,7 @@ app.post('/move', (request, response) => {
       }
       var finalList = [];
       for(var i = 0; i < list.length; i++) {
-        candidate = Coordinate.add(list[i], coords)
+        var candidate = Coordinate.add(list[i], coords);
         if(this.withinBounds(candidate) < 1) {
           continue;
         }
