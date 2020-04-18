@@ -216,7 +216,7 @@ app.post('/move', (request, response) => {
   }
   for(let i = 0; i < challengers.length; i++) {
     tileSets['void'] = tileSets['void'].concat(challengers[i].body.slice(0, -1));
-    let localTiles = Coordinate.applyToList(challengers[i].body[0], directionMap['orth']);
+    let localTiles = Coordinate.applyToList(challengers[i].body[0], Object.values(directionMap['orth']));
 
     if(challengers[i].body.length < player.body.length) {
       preyCount += 1;
@@ -234,7 +234,6 @@ app.post('/move', (request, response) => {
   if(debug >= debugLevels.Debug) {
     console.log("! mood selection");
   }
-  // mood logic
   let avgFoodDistance = Math.round((board.width * board.height)/(tileSets['food'].length + tileSets['prey'].length));
   if(tileSets['prey'].length < 1  || player.health <= avgFoodDistance + 5) {
     player.mood['hungry'] = true;
@@ -297,7 +296,7 @@ app.post('/move', (request, response) => {
       continue;
     }
 
-    let nextZone = Coordinate.applyToList(nextTile, directionMap['orth']);
+    let nextZone = Coordinate.applyToList(nextTile, Object.values(directionMap['orth']));
     if(Coordinate.withinList(nextZone, tileSets['void']) >= 4) {
       continue;
     }
