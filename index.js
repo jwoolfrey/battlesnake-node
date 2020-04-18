@@ -139,10 +139,10 @@ app.post('/move', (request, response) => {
       }
       var count = 0;
       for(var i = 0; i < coords.length; i++) {
-        if(coords.x < 0 || coords.x > board.width - 1) {
+        if(coords[i].x < 0 || coords[i].x > (board.width - 1)) {
           continue;
         }
-        if(coords.y < 0 || coords.y > board.height - 1) {
+        if(coords[i].y < 0 || coords[i].y > (board.height - 1)) {
           continue;
         }
         count += 1;
@@ -329,10 +329,9 @@ app.post('/move', (request, response) => {
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
     console.log(player.mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", tileSets['food'].length, preyCount, board.snakes.length - 1, tileSets['void'].length);
-    console.log("Pl:%s Ta:%s", player.body[0], target);
-    console.log(tileSets);
   }
   if(debug >= debugLevels.Notice) {
+    console.log("Pl:%s Ta:%s", player.body[0], target);
     console.log("Mv: %s Pr: %s Op: %d", nextMove, movePreference, nextMoves.length);
   }
   
