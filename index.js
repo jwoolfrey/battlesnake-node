@@ -120,13 +120,17 @@ app.post('/move', (request, response) => {
       return Math.round(Math.hypot(dist_x, dist_y));
     }
 
-    static vectorFromCoords (src, dst) {
+    static vectorFromCoords (src, dst, clamp = false) {
       if(debug >= debugLevels.Debug) {
         console.log("func: Coordinate.vectorFromCoords");
       }
       var vector = {'x': 0, 'y': 0};
-      vector.x = Math.min(Math.max(dst.x - src.x, -1), 1);
-      vector.y = Math.min(Math.max(dst.y - src.y, -1), 1);
+      vector.x = dst.x - src.x;
+      vector.y = dst.y - src.y;
+      if(clamp) {
+        vector.x = Math.min(Math.max(vector.x, -1), 1);
+        vector.y = Math.min(Math.max(vector.y, -1), 1);
+      }
       return Object.assign({}, vector);
     }
 
@@ -214,10 +218,12 @@ app.post('/move', (request, response) => {
   if(debug >= debugLevels.Debug) {
     console.log("! snake filtering");
   }
-  for(let i = 0; i < challengers.length; i++) {
+  for(var i = 0; i < challengers.length; i++) {
+    //mark all snake bodies as void & find next possible moves
     tileSets['void'] = tileSets['void'].concat(challengers[i].body.slice(0, -1));
     let localTiles = Coordinate.applyToList(challengers[i].body[0], Object.values(directionMap['orth']));
 
+    //mark smaller snakes as prey, and same/larger snakes as danger
     if(challengers[i].body.length < player.body.length) {
       preyCount += 1;
       tileSets['prey'] = tileSets['prey'].concat(localTiles);
@@ -226,7 +232,8 @@ app.post('/move', (request, response) => {
         tileSets['dngr'] = tileSets['dngr'].concat(localTiles);
       }
     }
-    if(Coordinate.withinList(localTiles, tileSets['food']) > 0) {
+    //mark snake tails as void if they recently ate
+    if(challengers[i].health == 100) {
       tileSets['void'].push(challengers[i].body[challengers[i].body.length - 1]);
     }
   }
@@ -234,7 +241,7 @@ app.post('/move', (request, response) => {
   if(debug >= debugLevels.Debug) {
     console.log("! mood selection");
   }
-  let avgFoodDistance = Math.round((board.width * board.height)/(tileSets['food'].length + tileSets['prey'].length));
+  let avgFoodDistance = Math.round((board.width * board.height)/(tileSets['food'].length + preyCount));
   if(tileSets['prey'].length < 1  || player.health <= avgFoodDistance + 5) {
     player.mood['hungry'] = true;
   } else if(tileSets['prey'].length > 0) {
@@ -258,7 +265,7 @@ app.post('/move', (request, response) => {
     console.log("! direction selection");
   }
   var movePreference = [];
-  let targetVector = Coordinate.vectorFromCoords(player.body[0], target);
+  let targetVector = Coordinate.vectorFromCoords(player.body[0], target, true);
 
   if(targetVector.x < 0) {
     movePreference.push('left');
