@@ -84,13 +84,6 @@ app.post('/move', (request, response) => {
   var preyCount = 0;
 
   class Coordinate {
-    static toString (coords) {
-      if(debug >= debugLevels.Debug) {
-        console.log("func: Coordinate.toString");
-      }
-      return `(${coords.x}, ${coords.y})`;
-    }
-
     static add (coords_a, coords_b) {
       if(debug >= debugLevels.Debug) {
         console.log("func: Coordinate.add");
@@ -102,10 +95,10 @@ app.post('/move', (request, response) => {
       if(debug >= debugLevels.Debug) {
         console.log("func: Coordinate.equals");
       }
-      if((coords_a.x - coords_b.x) != 0) {
+      if(coords_a.x != coords_b.x) {
         return false;
       }
-      if((coords_a.y - coords_b.y) != 0) {
+      if(coords_a.y != coords_b.y) {
         return false;
       }
       return true;
@@ -188,12 +181,15 @@ app.post('/move', (request, response) => {
     }
   }
 
-  function findClosestTarget (source, list) {
+  function closestTarget (source, list) {
     if(debug >= debugLevels.Debug) {
       console.log("func: findClosestTarget");
     }
-    var shortestDistance = board.width * board.height;
-    var destination = source;
+    list.sort(function(a, b) {
+        var dist_a = Coordinate.lineDistance(source, a);
+        var dist_b = Coordinate.lineDistance(source, b);
+        return dist_a - dist_b;
+    });
 
     for(var i = 0; i < list.length; i++) {
       if(Coordinate.withinList(list[i], tileSets['void']) > 0) {
@@ -202,16 +198,60 @@ app.post('/move', (request, response) => {
       if(Coordinate.withinList(list[i], tileSets['dngr']) > 0) {
         continue;
       }
-      var newDistance = Coordinate.lineDistance(list[i], source);
-      if(newDistance < shortestDistance){
-        //check for obstruction?
-        shortestDistance = newDistance;
-        destination = list[i];
-      }
+      return list[i];
     }
-    return destination;
+    return null;
   }
 
+  function pathToTarget (source, target) {
+    var compare = function (a, b) {
+      if(a.priority > b.priority) {return  1;}
+      if(a.priority < b.priority) {return -1;}
+      return 0;
+    }
+    var sourceString = JSON.stringify(source);
+    var frontier = new priorityQueue([], compare);
+    frontier.enqueue({'coords': sourceString, 'priority': 0});
+    
+    var path = {};
+    path[sourceString] = null;
+    
+    var cost = {};
+    cost[sourceString] = 0;
+    
+    var current = null;
+    var next = null;
+    var goal = JSON.stringify(target);
+    while(frontier.length > 0) {
+      current = frontier.dequeue();
+      
+      if(current.coords == goal) {
+        break;
+      }weight
+      
+      var neighbours = Coordinate.applyToList(JSON.parse(current.coords), Object.values(directionMap['orth']));
+      for(var i = 0; i < neighbours.length; i++) {
+        var neighbourString = JSON.stringify(neighbours[i]);
+        var neighbourWeight = 1;
+        var neighbourPriority = 0;
+        if(Coordinate.withinList(neighbours[i], tileSets['void']) {
+          continue;
+        }
+        if(Coordinate.withinList(neighbours[i], tileSets['dngr']) {
+          neighbourWeight = 5;
+        }
+        var newCost = cost[current.coords] + neighbourWeight;
+        if(!(neightbourString in Object.keys(cost)) || (newCost < cost[neighbourString])) {
+          cost[neighbourString] = newCost;
+          neighbourPriority = newCost + Coordinate.lineDistance(target, neighbours[i]);
+          frontier.enqueue({'coords': neighbourString, 'priority': neighbourPriority});
+          path[neighbourString] = current.coords;
+        }
+      }
+    }
+    return Object.assign({}, path);
+  }
+  
   if(debug >= debugLevels.Notice) {
     console.log("#### %s/%d ####", request.body.game.id, request.body.turn);
   }
@@ -252,13 +292,18 @@ app.post('/move', (request, response) => {
 
   if(debug >= debugLevels.Debug) {
     console.log("! target selection");
-    console.log(tileSets['food']);
+    console.log(tileSets['dngr']);
   }
-  let target = player.body[player.body.length - 1];
+  
+  let target = null;
+  if(player.mood['hunting'] && tileSets['prey'].length > 0) {
+    target = closestTarget(player.body[0], tileSets['prey']);
+  }
   if(player.mood['hungry'] && tileSets['food'].length > 0) {
-    target = findClosestTarget(player.body[0], tileSets['food']);
-  } else if(player.mood['hunting'] && tileSets['prey'].length > 0) {
-    target = findClosestTarget(player.body[0], tileSets['prey']);
+    target = closestTarget(player.body[0], tileSets['food']);
+  }
+  if(target == null || player.mood['hiding']) {
+    target = player.body[player.body.length - 1];
   }
 
   if(debug >= debugLevels.Debug) {
