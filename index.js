@@ -339,7 +339,12 @@ app.post('/move', (request, response) => {
     console.log("! movement filtering");
   }
   
-  var nextMoves = [];
+  var compare = function (a, b) {
+    if(a.priority < b.priority) {return  1;}
+    if(a.priority > b.priority) {return -1;}
+    return 0;
+  }
+  var nextMoves = new priorityQueue([], compare);
   var validMoves = ['up','right','down','left'];
   
   for(var i = 0; i < validMoves.length; i++) {
@@ -359,15 +364,16 @@ app.post('/move', (request, response) => {
       continue;
     }
 
+    // SOFT: scoring
     var pathToTail = pathToTarget(nextTile, player.tail);
     if(Object.keys(pathToTail).indexOf(JSON.stringify(player.tail)) < 0) {
-      continue;
+      tileScore -= 1;
     }
 
-    // SOFT: scoring
     if(movePreference.indexOf(opt) >= 0) {
       tileScore += 1;
     }
+    
     if(debug >= debugLevels.Debug) {
       console.log("Added: %s", opt);
     }
@@ -378,14 +384,7 @@ app.post('/move', (request, response) => {
     console.log("! movement selection");
   }
 
-  var nextMove = 'up';
-  var moveScore = 0
-  for(var i = 0; i < nextMoves.length; i++) {
-    if(nextMoves[i].priority >= moveScore){
-      moveScore = nextMoves[i].priority;
-      nextMove = nextMoves[i].direction;
-    }
-  }
+  var nextMove = (nextMoves.dequeue()).direction;
   
   if(debug >= debugLevels.Informational) {
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
