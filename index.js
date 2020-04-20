@@ -234,10 +234,10 @@ app.post('/move', (request, response) => {
         var neighbourString = JSON.stringify(neighbours[i]);
         var neighbourWeight = 1;
         var neighbourPriority = 0;
-        if(Coordinate.withinList(neighbours[i], tileSets['void']) {
+        if(Coordinate.withinList(neighbours[i], tileSets['void'])) {
           continue;
         }
-        if(Coordinate.withinList(neighbours[i], tileSets['dngr']) {
+        if(Coordinate.withinList(neighbours[i], tileSets['dngr'])) {
           neighbourWeight = 5;
         }
         var newCost = cost[current.coords] + neighbourWeight;
