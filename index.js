@@ -370,7 +370,7 @@ app.post('/move', (request, response) => {
       tileScore -= 1;
     }
 
-    if(movePreference.indexOf(opt) >= 0) {
+    if(tileScore >= 0 && movePreference.indexOf(opt) >= 0) {
       tileScore += 1;
     }
 
