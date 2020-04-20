@@ -51,14 +51,12 @@ app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
   var directionMap = {
   'orth': {
-    'origin': {'x':  0, 'y':  0},
     'up'    : {'x':  0, 'y': -1},
     'right' : {'x':  1, 'y':  0},
     'down'  : {'x':  0, 'y':  1},
     'left'  : {'x': -1, 'y':  0}
   },
   'diag': {
-    'origin'    : {'x':  0, 'y':  0},
     'up-right'  : {'x':  1, 'y': -1},
     'down-right': {'x':  1, 'y':  1},
     'down-left' : {'x': -1, 'y':  1},
@@ -216,6 +214,7 @@ app.post('/move', (request, response) => {
       return 0;
     }
     var sourceString = JSON.stringify(source);
+    var targetString = JSON.stringify(target);
     var frontier = new priorityQueue([], compare);
     frontier.enqueue({'coords': sourceString, 'priority': 0});
     
@@ -224,29 +223,34 @@ app.post('/move', (request, response) => {
     
     var cost = {};
     cost[sourceString] = 0;
-    
+
+    if(sourceString == targetString) {
+      return {[targetString]: sourceString};
+    }
+
     var current = null;
-    var goal = JSON.stringify(target);
     while(frontier.length > 0) {
       current = frontier.dequeue();
       
-      if(current.coords == goal) {
+      if(current.coords == targetString) {
         break;
       }
       
       var neighbours = Coordinate.applyToList(JSON.parse(current.coords), Object.values(directionMap['orth']));
       for(var i = 0; i < neighbours.length; i++) {
         var neighbourString = JSON.stringify(neighbours[i]);
-        var neighbourWeight = 1;
         var neighbourPriority = 0;
+        var neighbourWeight = 1;
+
         if(Coordinate.withinList(neighbours[i], tileSets['void']) && !Coordinate.equals(neighbours[i], target)) {
           continue;
         }
         if(Coordinate.withinList(neighbours[i], tileSets['dngr'])) {
           neighbourWeight = 5;
         }
+
         var newCost = cost[current.coords] + neighbourWeight;
-        if(!(neighbourString in Object.keys(cost)) || (newCost < cost[neighbourString])) {
+        if((Object.keys(cost).indexOf(neighbourString) < 0) || (newCost < cost[neighbourString])) {
           cost[neighbourString] = newCost;
           neighbourPriority = newCost + Coordinate.lineDistance(target, neighbours[i]);
           frontier.enqueue({'coords': neighbourString, 'priority': neighbourPriority});
@@ -356,8 +360,8 @@ app.post('/move', (request, response) => {
     }
 
     var pathToTail = pathToTarget(nextTile, player.tail);
-    if(Object.values(pathToTail).indexOf(JSON.stringify(player.tail)) < 0) {
-      //continue;
+    if(Object.keys(pathToTail).indexOf(JSON.stringify(player.tail)) < 0) {
+      continue;
     }
 
     // SOFT: scoring
