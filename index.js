@@ -357,7 +357,7 @@ app.post('/move', (request, response) => {
 
     var pathToTail = pathToTarget(nextTile, player.tail);
     if(Object.values(pathToTail).indexOf(JSON.stringify(player.tail)) < 0) {
-      continue;
+      //continue;
     }
 
     // SOFT: scoring
