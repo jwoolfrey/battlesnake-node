@@ -373,11 +373,11 @@ app.post('/move', (request, response) => {
     if(movePreference.indexOf(opt) >= 0) {
       tileScore += 1;
     }
-    
+
     if(debug >= debugLevels.Debug) {
       console.log("Added: %s", opt);
     }
-    nextMoves.push({'direction': `${opt}`, 'priority': tileScore});
+    nextMoves.enqueue({'direction': `${opt}`, 'priority': tileScore});
   }
 
   if(debug >= debugLevels.Debug) {
