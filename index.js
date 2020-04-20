@@ -186,7 +186,7 @@ app.post('/move', (request, response) => {
 
   function closestTarget (source, list) {
     if(debug >= debugLevels.Debug) {
-      console.log("func: findClosestTarget");
+      console.log("func: closestTarget");
     }
     list.sort(function(a, b) {
         var dist_a = Coordinate.lineDistance(source, a);
@@ -207,6 +207,9 @@ app.post('/move', (request, response) => {
   }
 
   function pathToTarget (source, target) {
+    if(debug >= debugLevels.Debug) {
+      console.log("func: pathToTarget");
+    }
     var compare = function (a, b) {
       if(a.priority > b.priority) {return  1;}
       if(a.priority < b.priority) {return -1;}
@@ -223,28 +226,27 @@ app.post('/move', (request, response) => {
     cost[sourceString] = 0;
     
     var current = null;
-    var next = null;
     var goal = JSON.stringify(target);
     while(frontier.length > 0) {
       current = frontier.dequeue();
       
       if(current.coords == goal) {
         break;
-      }weight
+      }
       
       var neighbours = Coordinate.applyToList(JSON.parse(current.coords), Object.values(directionMap['orth']));
       for(var i = 0; i < neighbours.length; i++) {
         var neighbourString = JSON.stringify(neighbours[i]);
         var neighbourWeight = 1;
         var neighbourPriority = 0;
-        if(Coordinate.withinList(neighbours[i], tileSets['void'])) {
+        if(Coordinate.withinList(neighbours[i], tileSets['void']) && !Coordinate.equals(neighbours[i], target)) {
           continue;
         }
         if(Coordinate.withinList(neighbours[i], tileSets['dngr'])) {
           neighbourWeight = 5;
         }
         var newCost = cost[current.coords] + neighbourWeight;
-        if(!(neightbourString in Object.keys(cost)) || (newCost < cost[neighbourString])) {
+        if(!(neighbourString in Object.keys(cost)) || (newCost < cost[neighbourString])) {
           cost[neighbourString] = newCost;
           neighbourPriority = newCost + Coordinate.lineDistance(target, neighbours[i]);
           frontier.enqueue({'coords': neighbourString, 'priority': neighbourPriority});
