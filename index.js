@@ -443,9 +443,9 @@ app.post('/move', (request, response) => {
       if(areaOfVolume(nextTile) <= (player.body.length * 1.5)) {
         continue;
       }
-      tileScore -= (scoreMap.length * 10);
+      tileScore -= (scoreRegion.length * 10);
     } else if(movePreference.indexOf(opt) >= 0) {
-      tileScore += (scoreMap.length * 10);
+      tileScore += (scoreRegion.length * 10)/2;
     }
 
     if(debug >= debugLevels.Debug) {
