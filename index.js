@@ -311,10 +311,10 @@ app.post('/move', (request, response) => {
     } else {
       if(challengers[i].id != player.id) {
         tileSets['dngr'] = tileSets['dngr'].concat(localTiles);
-        let challengerVector = Coordinate.vectorFromCoords(challengers[i].body[0], challengers[i].body[1], true);
+        let challengerVector = Coordinate.vectorFromCoords(challengers[i].body[1], challengers[i].body[0], true);
         let predictedMove = Coordinate.add(challengers[i].body[0], challengerVector);
         if(Coordinate.withinBounds(predictedMove) > 0) {
-          tileSets['pdct'] = tileSets['pdct'].push(predictedMove);
+          tileSets['pdct'] = tileSets['pdct'].concat([predictedMove]);
         }
       }
     }
