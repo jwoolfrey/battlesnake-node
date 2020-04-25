@@ -402,45 +402,47 @@ app.post('/move', (request, response) => {
     }
 
     // SOFT: scoring
-    var scoreMap = ([{'x': 0, 'y': 0}]).concat(directionMap['orth']).concat(directionMap['diag']);
+    var scoreMap = [{'x': 0, 'y': 0}];
+    scoreMap = scoreMap.concat(Object.values(directionMap['orth']));
+    scoreMap = scoreMap.concat(Object.values(directionMap['diag']));
     let scoreOrigin = Coordinate.add(nextTile, playerVector);
     let scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
 
     // Out-of-bounds: -1 * noOfTiles
-    oobTiles = (scoreMap.length - scoreRegion.length);
+    let oobTiles = (scoreMap.length - scoreRegion.length);
     tileScore -= oobTiles;
 
     if(Coordinate.withinList(nextTile, tileSets['dngr']) > 0) {
-      tileScore -= 5;
+      tileScore -= 10;
     }
 
     for(var j = 0; j < scoreRegion.length; j++) {
       if(Coordinate.withinList(scoreRegion[j], tileSets['void']) > 0) {
-        // Void: -5
-        tileScore -= 5;
+        // Void: -7
+        tileScore -= 7;
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['pdct']) > 0) {
-        // Predicted: -3
-        tileScore -= 3;
+        // Predicted: -5
+        tileScore -= 5;
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['dngr']) > 0) {
-        // Danger: -1
-        tileScore -= 1;
+        // Danger: -3
+        tileScore -= 3;
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['tail']) > 0) {
-        // Tail: 1
-        tileScore += 1;
+        // Tail: -1
+        tileScore -= 1;
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['food']) > 0) {
-        // Food: 3
-        tileScore += 3;
+        // Food: 0
         continue;
       }
-      // Open: 0
+      // Open: 3
+      tileScore += 3;
     }
 
     var pathToTail = pathToTarget(nextTile, player.tail);
@@ -451,7 +453,7 @@ app.post('/move', (request, response) => {
       }
       tileScore -= (scoreMap.length * 10) + oobTiles;
     } else if(movePreference.indexOf(opt) >= 0) {
-      tileScore += (scoreRegion.length * 10)/2;
+      tileScore += (scoreRegion.length * 10)/3;
     }
 
     if(debug >= debugLevels.Debug) {
