@@ -410,11 +410,7 @@ app.post('/move', (request, response) => {
 
     // Out-of-bounds: -1 * noOfTiles
     let oobTiles = (scoreMap.length - scoreRegion.length);
-    tileScore -= oobTiles;
-
-    if(Coordinate.withinList(nextTile, tileSets['dngr']) > 0) {
-      tileScore -= 10;
-    }
+    //tileScore -= oobTiles;
 
     for(var j = 0; j < scoreRegion.length; j++) {
       if(Coordinate.withinList(scoreRegion[j], tileSets['void']) > 0) {
@@ -454,6 +450,10 @@ app.post('/move', (request, response) => {
       tileScore -= (scoreMap.length * 10) + oobTiles;
     } else if(movePreference.indexOf(opt) >= 0) {
       tileScore += (scoreRegion.length * 10)/3;
+    }
+
+    if(tileScore > 0 && Coordinate.withinList(nextTile, tileSets['pdct']) > 0) {
+      tileScore /= 2;
     }
 
     if(debug >= debugLevels.Debug) {
