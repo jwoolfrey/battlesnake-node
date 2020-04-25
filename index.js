@@ -204,6 +204,35 @@ app.post('/move', (request, response) => {
     return null;
   }
 
+  function areaOfVolume (source) {
+    if(debug >= debugLevels.Debug) {
+      console.log("func: areaOfVolume");
+    }
+    var frontier = [];
+    var volume = [];
+
+    frontier.push(JSON.stringify(source));
+    while(frontier.length > 0) {
+      var current = frontier.pop();
+      if(volume.indexOf(current) >= 0) {
+        continue;
+      }
+      volume.push(current);
+      let neighbours = Coordinate.applyToList(JSON.parse(current), Object.values(directionMap['orth']));
+
+      for(var i = 0; i < neighbours.length; i++) {
+        if(Coordinate.withinList(neighbours[i], volume)) {
+          continue;
+        }
+        if(Coordinate.withinList(neighbours[i], tileSets['void'])){
+          continue;
+        }
+        frontier.push(JSON.stringify(neighbours[i]));
+      }
+    }
+    return volume.length;
+  }
+
   function pathToTarget (source, target) {
     if(debug >= debugLevels.Debug) {
       console.log("func: pathToTarget");
@@ -353,6 +382,7 @@ app.post('/move', (request, response) => {
       console.log(opt);
     }
     let nextTile = Coordinate.add(player.head, directionMap['orth'][opt]);
+    let playerVector = Coordinate.vectorFromCoords(player.head, nextTile, true);
     var tileScore = 0;
     
     // HARD: rejections
@@ -365,19 +395,52 @@ app.post('/move', (request, response) => {
     }
 
     // SOFT: scoring
-    var pathToTail = pathToTarget(nextTile, player.tail);
-    if(Object.keys(pathToTail).indexOf(JSON.stringify(player.tail)) < 0) {
-      tileScore -= 1;
+    var scoreMap = ([{'x': 0, 'y': 0}]).concat(directionMap['orth']).concat(directionMap['diag']);
+    let scoreOrigin = Coordinate.add(nextTile, playerVector);
+    let scoreRegion = applyToList(scoreOrigin, scoreMap);
+
+    // Out-of-bounds: -1 * noOfTiles
+    tileScore -= (scoreMap.length - scoreRegion.length);
+
+    for(var i = 0; i < scoreRegion.length; i++) {
+      if(Coordinate.withinList(scoreRegion[i], tileSets['void']) > 0) {
+        // Void: 0
+        continue;
+      }
+      if(Coordinate.withinList(scoreRegion[i], tileSets['dngr']) > 0) {
+        // Danger: 1
+        tileScore += 1;
+        continue;
+      }
+      if(Coordinate.withinList(scoreRegion[i], tileSets['tail']) > 0) {
+        // Tail: 3
+        tileScore += 3;
+        continue;
+      }
+      if(Coordinate.withinList(scoreRegion[i], tileSets['food']) > 0) {
+        // Food: 7
+        tileScore += 7;
+        continue;
+      }
+      // Open: 5
+      tileScore += 5;
     }
 
-    if(tileScore >= 0 && movePreference.indexOf(opt) >= 0) {
-      tileScore += 1;
+    var pathToTail = pathToTarget(nextTile, player.tail);
+    if(Object.keys(pathToTail).indexOf(JSON.stringify(player.tail)) < 0) {
+      //sneaky hard rejection
+      if(areaOfVolume(nextTile) <= (player.body.length * 1.5)) {
+        continue;
+      }
+      tileScore -= (scoreMap.length * 10);
+    } else if(movePreference.indexOf(opt) >= 0) {
+      tileScore += (scoreMap.length * 10);
     }
 
     if(debug >= debugLevels.Debug) {
       console.log("Added: %s", opt);
     }
-    nextMoves.enqueue({'direction': `${opt}`, 'priority': tileScore});
+    nextMoves.enqueue({'direction': opt, 'priority': tileScore});
   }
 
   if(debug >= debugLevels.Debug) {
