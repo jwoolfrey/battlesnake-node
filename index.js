@@ -49,6 +49,7 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   // NOTE: Do something here to generate your move
+  var requestString = Buffer.from(JSON.stringify(request.body)).toString('base64');
   var directionMap = {
   'orth': {
     'up'    : {'x':  0, 'y': -1},
@@ -438,7 +439,7 @@ app.post('/move', (request, response) => {
     }
 
     if(debug >= debugLevels.Debug) {
-      console.log("Added: %s", opt);
+      console.log("Added: %s [%d]", opt, tileScore);
     }
     nextMoves.enqueue({'direction': `${opt}`, 'priority': tileScore});
   }
@@ -446,18 +447,19 @@ app.post('/move', (request, response) => {
   if(debug >= debugLevels.Debug) {
     console.log("! movement selection");
   }
-
   var nextMove = (nextMoves.dequeue()).direction;
   
   if(debug >= debugLevels.Informational) {
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
-    console.log(Buffer.from(JSON.stringify(request.body)).toString('base64'));
     console.log(player.mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", tileSets['food'].length, preyCount, board.snakes.length - 1, tileSets['void'].length);
   }
   if(debug >= debugLevels.Notice) {
     console.log("Pl:%s Ta:%s", player.body[0], target);
     console.log("Mv: %s Pr: %s Op: %d", nextMove, movePreference, nextMoves.length);
+  }
+  if(debug >= debugLevels.Debug) {
+    console.log("Request: %s", requestString);
   }
   
   // Response data
