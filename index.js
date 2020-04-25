@@ -397,7 +397,7 @@ app.post('/move', (request, response) => {
     // SOFT: scoring
     var scoreMap = ([{'x': 0, 'y': 0}]).concat(directionMap['orth']).concat(directionMap['diag']);
     let scoreOrigin = Coordinate.add(nextTile, playerVector);
-    let scoreRegion = applyToList(scoreOrigin, scoreMap);
+    let scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
 
     // Out-of-bounds: -1 * noOfTiles
     tileScore -= (scoreMap.length - scoreRegion.length);
