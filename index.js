@@ -451,6 +451,7 @@ app.post('/move', (request, response) => {
   
   if(debug >= debugLevels.Informational) {
     console.log("ID:%s He:%d/%d Le:%d", player.id, player.health, avgFoodDistance, player.body.length);
+    console.log(Buffer.from(JSON.stringify(request.body)).toString('base64'));
     console.log(player.mood);
     console.log("Fo:%d Pr:%d/%d Ig:%d", tileSets['food'].length, preyCount, board.snakes.length - 1, tileSets['void'].length);
   }
