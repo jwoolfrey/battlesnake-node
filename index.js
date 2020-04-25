@@ -407,34 +407,40 @@ app.post('/move', (request, response) => {
     let scoreRegion = Coordinate.applyToList(scoreOrigin, scoreMap);
 
     // Out-of-bounds: -1 * noOfTiles
-    tileScore -= (scoreMap.length - scoreRegion.length);
+    oobTiles = (scoreMap.length - scoreRegion.length);
+    tileScore -= oobTiles;
+
+    if(Coordinate.withinList(nextTile, tileSets['dngr']) > 0) {
+      tileScore -= 5;
+    }
 
     for(var j = 0; j < scoreRegion.length; j++) {
       if(Coordinate.withinList(scoreRegion[j], tileSets['void']) > 0) {
-        // Void: 0
+        // Void: -5
+        tileScore -= 5;
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['pdct']) > 0) {
-        // Predicted: 0
+        // Predicted: -3
+        tileScore -= 3;
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['dngr']) > 0) {
-        // Danger: 1
-        tileScore += 1;
+        // Danger: -1
+        tileScore -= 1;
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['tail']) > 0) {
-        // Tail: 3
-        tileScore += 3;
+        // Tail: 1
+        tileScore += 1;
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['food']) > 0) {
-        // Food: 7
-        tileScore += 7;
+        // Food: 3
+        tileScore += 3;
         continue;
       }
-      // Open: 5
-      tileScore += 5;
+      // Open: 0
     }
 
     var pathToTail = pathToTarget(nextTile, player.tail);
@@ -443,7 +449,7 @@ app.post('/move', (request, response) => {
       if(areaOfVolume(nextTile) <= (player.body.length * 1.5)) {
         continue;
       }
-      tileScore -= (scoreRegion.length * 10);
+      tileScore -= (scoreMap.length * 10) + oobTiles;
     } else if(movePreference.indexOf(opt) >= 0) {
       tileScore += (scoreRegion.length * 10)/2;
     }
