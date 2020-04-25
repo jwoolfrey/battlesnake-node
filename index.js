@@ -81,6 +81,7 @@ app.post('/move', (request, response) => {
     'prey': [],
     'void': [],
     'dngr': [],
+    'pdct': []
   };
 
   var preyCount = 0;
@@ -310,6 +311,11 @@ app.post('/move', (request, response) => {
     } else {
       if(challengers[i].id != player.id) {
         tileSets['dngr'] = tileSets['dngr'].concat(localTiles);
+        let challengerVector = Coordinate.vectorFromCoords(challengers[i].body[0], challengers.body[1], true);
+        let predictedMove = Coordinate.add(challengers[i].body[0], challengerVector);
+        if(Coordinate.withinBounds(predictedMove) > 0) {
+          tileSets['pdct'] = tileSets['pdct'].push(predictedMove);
+        }
       }
     }
     tileSets['tail'].push(tail);
@@ -406,6 +412,10 @@ app.post('/move', (request, response) => {
     for(var j = 0; j < scoreRegion.length; j++) {
       if(Coordinate.withinList(scoreRegion[j], tileSets['void']) > 0) {
         // Void: 0
+        continue;
+      }
+      if(Coordinate.withinList(scoreRegion[j], tileSets['pdct']) > 0) {
+        // Predicted: 0
         continue;
       }
       if(Coordinate.withinList(scoreRegion[j], tileSets['dngr']) > 0) {
