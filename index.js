@@ -20,7 +20,7 @@ const debugLevels = {
   'Informational': 6,
   'Debug':         7
 };
-var debug = debugLevels.Informational;
+var debug = debugLevels.Debug;
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
@@ -403,22 +403,22 @@ app.post('/move', (request, response) => {
     // Out-of-bounds: -1 * noOfTiles
     tileScore -= (scoreMap.length - scoreRegion.length);
 
-    for(var i = 0; i < scoreRegion.length; i++) {
-      if(Coordinate.withinList(scoreRegion[i], tileSets['void']) > 0) {
+    for(var j = 0; j < scoreRegion.length; j++) {
+      if(Coordinate.withinList(scoreRegion[j], tileSets['void']) > 0) {
         // Void: 0
         continue;
       }
-      if(Coordinate.withinList(scoreRegion[i], tileSets['dngr']) > 0) {
+      if(Coordinate.withinList(scoreRegion[j], tileSets['dngr']) > 0) {
         // Danger: 1
         tileScore += 1;
         continue;
       }
-      if(Coordinate.withinList(scoreRegion[i], tileSets['tail']) > 0) {
+      if(Coordinate.withinList(scoreRegion[j], tileSets['tail']) > 0) {
         // Tail: 3
         tileScore += 3;
         continue;
       }
-      if(Coordinate.withinList(scoreRegion[i], tileSets['food']) > 0) {
+      if(Coordinate.withinList(scoreRegion[j], tileSets['food']) > 0) {
         // Food: 7
         tileScore += 7;
         continue;
